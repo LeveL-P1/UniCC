@@ -1,61 +1,74 @@
-import { auth, currentUser } from '@clerk/nextjs/server'
-import { redirect } from 'next/navigation'
+import DashboardLayout from '@/components/layout/DashboardLayout'
+import { Card, KPICard } from '@/components/ui/Card'
+import { Code2, Target, Flame, Clock } from 'lucide-react'
 
-export default async function Home() {
-  const { userId } = await auth()
-  const user = await currentUser()
-
-  if (!userId) {
-    redirect('/sign-in')
-  }
-
+export default function DashboardPage() {
   return (
-    <div className="min-h-screen bg-gray-50">
-      <nav className="bg-white shadow-sm border-b">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            <h1 className="text-xl font-bold text-gray-900">
-              Developer Productivity Dashboard
-            </h1>
-            <div className="flex items-center gap-4">
-              <span className="text-sm text-gray-600">
-                {user?.emailAddresses[0]?.emailAddress}
-              </span>
-              <form action="/api/auth/signout" method="POST">
-                <button 
-                  type="submit"
-                  className="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-md hover:bg-red-700"
-                >
-                  Sign Out
-                </button>
-              </form>
-            </div>
-          </div>
+    <DashboardLayout>
+      <div className="p-6 space-y-6">
+        
+        {/* KPI Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          <KPICard
+            title="Total Problems"
+            value="247"
+            subtitle="All time"
+            icon={<Code2 size={24} />}
+            trend={{ value: 12, isPositive: true }}
+          />
+          <KPICard
+            title="This Week"
+            value="23"
+            subtitle="7 days"
+            icon={<Target size={24} />}
+            trend={{ value: 8, isPositive: true }}
+          />
+          <KPICard
+            title="Current Streak"
+            value="12"
+            subtitle="days"
+            icon={<Flame size={24} />}
+          />
+          <KPICard
+            title="Total Time"
+            value="89h"
+            subtitle="Practice time"
+            icon={<Clock size={24} />}
+            trend={{ value: 15, isPositive: true }}
+          />
         </div>
-      </nav>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        <div className="bg-white rounded-lg shadow p-6">
-          <h2 className="text-2xl font-bold text-gray-900 mb-4">
-            Welcome, {user?.firstName || 'Developer'}! 👋
-          </h2>
-          <p className="text-gray-600">
-            Your dashboard is ready. We&apos;ll build the features step by step.
-          </p>
-          
-          <div className="mt-6 p-4 bg-green-50 border border-green-200 rounded-md">
-            <h3 className="text-sm font-semibold text-green-800 mb-2">
-              ✅ Setup Complete:
-            </h3>
-            <ul className="text-sm text-green-700 space-y-1">
-              <li>• Next.js + TypeScript</li>
-              <li>• Clerk Authentication</li>
-              <li>• PostgreSQL (Neon) + Prisma</li>
-              <li>• Tailwind CSS</li>
-            </ul>
-          </div>
+        {/* Charts Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card title="PROBLEMS PER DAY" collapsible>
+            <div className="h-64 flex items-center justify-center text-[#a0a0a0]">
+              <p>Line Chart Placeholder</p>
+            </div>
+          </Card>
+
+          <Card title="DIFFICULTY DISTRIBUTION" collapsible>
+            <div className="h-64 flex items-center justify-center text-[#a0a0a0]">
+              <p>Bar Chart Placeholder</p>
+            </div>
+          </Card>
         </div>
-      </main>
-    </div>
+
+        {/* Recent Sessions & Topics */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card title="RECENT SESSIONS" className="lg:col-span-2" collapsible>
+            <div className="h-64 flex items-center justify-center text-[#a0a0a0]">
+              <p>Sessions Table Placeholder</p>
+            </div>
+          </Card>
+
+          <Card title="TOPICS PRACTICED">
+            <div className="h-64 flex items-center justify-center text-[#a0a0a0]">
+              <p>Topics Heatmap Placeholder</p>
+            </div>
+          </Card>
+        </div>
+
+      </div>
+    </DashboardLayout>
   )
 }
