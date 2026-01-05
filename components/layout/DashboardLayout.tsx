@@ -6,54 +6,63 @@ import { useState } from 'react'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const NAVBAR_HEIGHT = 72
 
   return (
-    
-    <div className="min-h-screen bg-[#0f0f0f]">
-      {/* Top Navigation Bar */}
-      <nav className="fixed top-0 left-0 right-0 z-50 bg-[#1a1a1a] border-b border-[#2a2a2a]">
-        <div className="px-6 h-16 flex items-center justify-between">
-          {/* Logo and Brand */}
-          <div className="flex items-center gap-8">
+    <div className="min-h-screen bg-[#0b0b0b] text-white">
+
+      {/* Top Navigation */}
+      <nav className="
+        fixed top-0 left-0 right-0 z-50
+        bg-[#111]/80 backdrop-blur-xl
+        border-b border-white/10
+      ">
+        <div className="h-16 px-6 flex items-center justify-between">
+
+          {/* Brand */}
+          <div className="flex items-center gap-10">
             <div className="flex items-center gap-3">
-              <div className="w-8 h-8 bg-gradient-to-br from-[#ff6b35] to-[#e55a28] rounded-lg flex items-center justify-center">
-                <span className="text-white font-bold text-lg">U</span>
+              <div className="
+                w-9 h-9 rounded-xl
+                bg-linear-to-br from-orange-500 to-orange-600
+                flex items-center justify-center
+                shadow-lg shadow-orange-500/20
+              ">
+                <span className="font-bold text-lg">U</span>
               </div>
-              <h1 className="text-xl font-outfit font-bold text-white tracking-tight">
+              <span className="text-lg font-semibold tracking-tight">
                 UNICC
-              </h1>
+              </span>
             </div>
 
-            {/* Navigation Links */}
-            <div className="hidden md:flex items-center gap-6">
+            {/* Desktop Nav */}
+            <div className="hidden md:flex items-center gap-2">
               <NavLink href="/dashboard" icon={<LayoutDashboard size={18} />} active>
-                DASHBOARD
+                Dashboard
               </NavLink>
               <NavLink href="/sessions" icon={<BarChart3 size={18} />}>
-                SESSIONS
+                Sessions
               </NavLink>
               <NavLink href="/settings" icon={<Settings size={18} />}>
-                SETTINGS
+                Settings
               </NavLink>
             </div>
           </div>
 
-          {/* Right Side - User & Actions */}
-          <div className="flex items-center gap-4">
-            {/* Mobile menu button */}
+          {/* Right Actions */}
+          <div className="flex items-center gap-3">
             <button
               onClick={() => setIsSidebarOpen(!isSidebarOpen)}
-              className="md:hidden p-2 rounded-lg hover:bg-[#242424] text-gray-400"
+              className="md:hidden p-2 rounded-lg hover:bg-white/10 transition"
             >
               <Menu size={20} />
             </button>
 
-            {/* User Button */}
-            <UserButton 
+            <UserButton
               afterSignOutUrl="/"
               appearance={{
                 elements: {
-                  avatarBox: "w-9 h-9"
+                  avatarBox: "w-9 h-9 ring-1 ring-white/20"
                 }
               }}
             />
@@ -61,38 +70,48 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
         </div>
       </nav>
 
-      {/* Main Content */}
-      <main className="pt-16">
+      {/* Page Content */}
+      <main style={{ paddingTop: NAVBAR_HEIGHT }}>
         {children}
       </main>
+
     </div>
   )
 }
 
-// Navigation Link Component
-function NavLink({ 
-  href, 
-  icon, 
-  children, 
-  active = false 
-}: { 
+/* ---------------- Nav Link ---------------- */
+
+function NavLink({
+  href,
+  icon,
+  children,
+  active = false
+}: {
   href: string
   icon: React.ReactNode
   children: React.ReactNode
-  active?: boolean 
+  active?: boolean
 }) {
   return (
-
-    <a href={href}
+    <a
+      href={href}
       className={`
-        flex items-center gap-2 px-3 py-2 rounded-lg text-sm font-medium tracking-wide
+        relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm
         transition-all duration-200
         ${active
-          ? 'text-white bg-[#242424]'
-          : 'text-[#a0a0a0] hover:text-white hover:bg-[#242424]'
+          ? 'text-white bg-white/10'
+          : 'text-white/60 hover:text-white hover:bg-white/5'
         }
-     `}
+        hover:-translate-y-px
+      `}
     >
+      {active && (
+        <span className="
+          absolute inset-x-2 -bottom-0.5 h-0.5
+          bg-linear-to-r from-orange-500 to-orange-400
+          rounded-full
+        " />
+      )}
       {icon}
       {children}
     </a>
