@@ -3,9 +3,11 @@
 import { UserButton } from '@clerk/nextjs'
 import { LayoutDashboard, BarChart3, Settings, Menu } from 'lucide-react'
 import { useState } from 'react'
+import { usePathname } from 'next/navigation'
 
 export default function DashboardLayout({ children }: { children: React.ReactNode }) {
   const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const pathname = usePathname()
   const NAVBAR_HEIGHT = 72
 
   return (
@@ -37,13 +39,13 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
 
             {/* Desktop Nav */}
             <div className="hidden md:flex items-center gap-2">
-              <NavLink href="/dashboard" icon={<LayoutDashboard size={18} />} active>
+              <NavLink href="/" icon={<LayoutDashboard size={18} />} active={pathname === '/'}>
                 Dashboard
               </NavLink>
-              <NavLink href="/sessions" icon={<BarChart3 size={18} />}>
+              <NavLink href="/sessions" icon={<BarChart3 size={18} />} active={pathname === '/sessions'}>
                 Sessions
               </NavLink>
-              <NavLink href="/settings" icon={<Settings size={18} />}>
+              <NavLink href="/settings" icon={<Settings size={18} />} active={pathname === '/settings'}>
                 Settings
               </NavLink>
             </div>
