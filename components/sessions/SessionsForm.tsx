@@ -1,6 +1,12 @@
 'use client'
 
 import { useState } from 'react'
+import { motion } from 'framer-motion'
+import { Input } from '@/components/ui/input'
+import { Label } from '@/components/ui/label'
+import { Textarea } from '@/components/ui/textarea'
+import { Button } from '@/components/ui/button'
+import { cn } from '@/lib/utils'
 
 interface SessionFormProps {
   onSubmit: (data: SessionFormData) => Promise<void>
@@ -78,28 +84,25 @@ export function SessionForm({ onSubmit, onCancel, initialData, isEdit = false }:
     <form onSubmit={handleSubmit} className="space-y-6">
       {/* Date & Platform */}
       <div className="grid grid-cols-2 gap-4">
-        <div>
-          <label className="block text-sm font-medium text-[#a0a0a0] mb-2">
-            Date
-          </label>
-          <input
+        <div className="space-y-2">
+          <Label htmlFor="date">Date</Label>
+          <Input
+            id="date"
             type="date"
             value={formData.date}
             onChange={(e) => setFormData({ ...formData, date: e.target.value })}
             required
-            className="w-full px-4 py-2.5 bg-[#242424] border border-[#2a2a2a] rounded-lg text-white focus:outline-none focus:border-[#ff6b35] transition-colors"
           />
         </div>
 
-        <div>
-          <label className="block text-sm font-medium text-[#a0a0a0] mb-2">
-            Platform
-          </label>
+        <div className="space-y-2">
+          <Label htmlFor="platform">Platform</Label>
           <select
+            id="platform"
             value={formData.platform}
             onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
             required
-            className="w-full px-4 py-2.5 bg-[#242424] border border-[#2a2a2a] rounded-lg text-white focus:outline-none focus:border-[#ff6b35] transition-colors"
+            className="flex h-10 w-full rounded-lg border border-input bg-secondary px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all md:text-sm"
           >
             {PLATFORMS.map(platform => (
               <option key={platform} value={platform}>{platform}</option>
@@ -109,117 +112,113 @@ export function SessionForm({ onSubmit, onCancel, initialData, isEdit = false }:
       </div>
 
       {/* Difficulty Distribution */}
-      <div>
-        <label className="block text-sm font-medium text-[#a0a0a0] mb-3">
-          Problems by Difficulty
-        </label>
+      <div className="space-y-3">
+        <Label>Problems by Difficulty</Label>
         <div className="grid grid-cols-3 gap-4">
-          <div>
-            <label className="block text-xs text-green-500 mb-1">Easy</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="easy" className="text-green-500">Easy</Label>
+            <Input
+              id="easy"
               type="number"
               min="0"
               value={formData.easy}
               onChange={(e) => setFormData({ ...formData, easy: parseInt(e.target.value) || 0 })}
-              className="w-full px-4 py-2.5 bg-[#242424] border border-[#2a2a2a] rounded-lg text-white focus:outline-none focus:border-green-500 transition-colors"
+              className="focus-visible:ring-green-500"
             />
           </div>
-          <div>
-            <label className="block text-xs text-yellow-500 mb-1">Medium</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="medium" className="text-yellow-500">Medium</Label>
+            <Input
+              id="medium"
               type="number"
               min="0"
               value={formData.medium}
               onChange={(e) => setFormData({ ...formData, medium: parseInt(e.target.value) || 0 })}
-              className="w-full px-4 py-2.5 bg-[#242424] border border-[#2a2a2a] rounded-lg text-white focus:outline-none focus:border-yellow-500 transition-colors"
+              className="focus-visible:ring-yellow-500"
             />
           </div>
-          <div>
-            <label className="block text-xs text-red-500 mb-1">Hard</label>
-            <input
+          <div className="space-y-2">
+            <Label htmlFor="hard" className="text-red-500">Hard</Label>
+            <Input
+              id="hard"
               type="number"
               min="0"
               value={formData.hard}
               onChange={(e) => setFormData({ ...formData, hard: parseInt(e.target.value) || 0 })}
-              className="w-full px-4 py-2.5 bg-[#242424] border border-[#2a2a2a] rounded-lg text-white focus:outline-none focus:border-red-500 transition-colors"
+              className="focus-visible:ring-red-500"
             />
           </div>
         </div>
-        <p className="text-xs text-[#a0a0a0] mt-2">
+        <p className="text-xs text-muted-foreground mt-2">
           Total: {formData.easy + formData.medium + formData.hard} problems
         </p>
       </div>
 
       {/* Time Spent */}
-      <div>
-        <label className="block text-sm font-medium text-[#a0a0a0] mb-2">
-          Time Spent (minutes)
-        </label>
-        <input
+      <div className="space-y-2">
+        <Label htmlFor="time">Time Spent (minutes)</Label>
+        <Input
+          id="time"
           type="number"
           min="0"
           value={formData.timeSpentMinutes}
           onChange={(e) => setFormData({ ...formData, timeSpentMinutes: parseInt(e.target.value) || 0 })}
-          className="w-full px-4 py-2.5 bg-[#242424] border border-[#2a2a2a] rounded-lg text-white focus:outline-none focus:border-[#ff6b35] transition-colors"
         />
       </div>
 
       {/* Topics */}
-      <div>
-        <label className="block text-sm font-medium text-[#a0a0a0] mb-3">
-          Topics Practiced
-        </label>
+      <div className="space-y-3">
+        <Label>Topics Practiced</Label>
         <div className="flex flex-wrap gap-2">
           {COMMON_TOPICS.map(topic => (
-            <button
+            <motion.button
               key={topic}
               type="button"
               onClick={() => handleTopicToggle(topic)}
-              className={`
-                px-3 py-1.5 rounded-lg text-xs font-medium transition-all
-                ${formData.topics.includes(topic)
-                  ? 'bg-[#ff6b35] text-white'
-                  : 'bg-[#242424] text-[#a0a0a0] hover:bg-[#2a2a2a]'
-                }
-              `}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              className={cn(
+                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
+                formData.topics.includes(topic)
+                  ? "bg-primary text-primary-foreground shadow-sm"
+                  : "bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground"
+              )}
             >
               {topic}
-            </button>
+            </motion.button>
           ))}
         </div>
       </div>
 
       {/* Notes */}
-      <div>
-        <label className="block text-sm font-medium text-[#a0a0a0] mb-2">
-          Notes (Optional)
-        </label>
-        <textarea
+      <div className="space-y-2">
+        <Label htmlFor="notes">Notes (Optional)</Label>
+        <Textarea
+          id="notes"
           value={formData.notes}
           onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
           rows={4}
           placeholder="Any thoughts, learnings, or observations..."
-          className="w-full px-4 py-2.5 bg-[#242424] border border-[#2a2a2a] rounded-lg text-white placeholder-[#5a5a5a] focus:outline-none focus:border-[#ff6b35] transition-colors resize-none"
         />
       </div>
 
       {/* Actions */}
-      <div className="flex gap-3 pt-4">
-        <button
+      <div className="flex gap-3 pt-6">
+        <Button
           type="submit"
           disabled={loading}
-          className="flex-1 px-6 py-3 bg-[#ff6b35] hover:bg-[#e55a28] text-white font-medium rounded-lg transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+          className="flex-1"
         >
           {loading ? 'Saving...' : isEdit ? 'Update Session' : 'Add Session'}
-        </button>
-        <button
+        </Button>
+        <Button
           type="button"
+          variant="outline"
           onClick={onCancel}
           disabled={loading}
-          className="px-6 py-3 bg-[#242424] hover:bg-[#2a2a2a] text-white font-medium rounded-lg transition-colors disabled:opacity-50"
         >
           Cancel
-        </button>
+        </Button>
       </div>
     </form>
   )
