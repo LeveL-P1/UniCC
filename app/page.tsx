@@ -1,11 +1,17 @@
 'use client'
 
 import { useState, useEffect } from 'react'
+import { motion } from 'framer-motion'
 import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Card, KPICard } from '@/components/ui/Card'
 import { Drawer } from '@/components/ui/Drawer'
 import { SessionForm, SessionFormData } from '@/components/sessions/SessionsForm'
+import { Button } from '@/components/ui/button'
 import { Code2, Target, Flame, Clock, Plus } from 'lucide-react'
+import { ProblemsPerDayChart } from '@/components/charts/ProblemsPerDayChart'
+import { TopicsChart } from '@/components/charts/TopicsCharts'
+import { StreakCalendar } from '@/components/charts/StreakCalender'
+import { WeeklyInsights } from '@/components/charts/WeeklyInsights'
 
 interface Session {
   id: string
@@ -104,33 +110,30 @@ export default function DashboardPage() {
       <div className="p-6 space-y-10">
 
         {/* Page Header */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.3 }}
+          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+        >
           <div>
-            <h1 className="text-3xl font-outfit font-bold tracking-tight text-white">
+            <h1 className="text-4xl font-outfit font-bold tracking-tight">
               Dashboard
             </h1>
-            <p className="text-sm text-[#a0a0a0] mt-1">
+            <p className="text-sm text-muted-foreground mt-2">
               Your coding practice at a glance
             </p>
           </div>
 
-          <button
+          <Button
             onClick={() => setIsDrawerOpen(true)}
-            className="
-              flex items-center gap-2
-              px-5 py-3
-              bg-[#ff6b35]
-              hover:bg-[#e55a28]
-              text-white font-medium
-              rounded-xl
-              shadow-lg shadow-[#ff6b35]/20
-              transition-all
-            "
+            size="lg"
+            className="gap-2 shadow-lg shadow-primary/20"
           >
             <Plus size={18} />
             Add Session
-          </button>
-        </div>
+          </Button>
+        </motion.div>
 
         {/* KPI Section */}
         <div className="space-y-3">
@@ -172,44 +175,51 @@ export default function DashboardPage() {
             Insights
           </h2>
 
+          {/* Charts Section */}
           <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <Card title="Problems per Day" collapsible>
-              <div className="h-64 flex items-center justify-center text-[#a0a0a0]">
-                Line Chart – Phase 1D
-              </div>
+            <Card title="PROBLEMS PER DAY" collapsible>
+              <ProblemsPerDayChart sessions={sessions} />
             </Card>
 
-            <Card title="Difficulty Distribution" collapsible>
-              <div className="h-64 flex flex-col justify-center gap-5">
+            <Card title="DIFFICULTY DISTRIBUTION" collapsible>
+              <div className="h-64 flex flex-col justify-center gap-4">
                 {loading ? (
                   <p className="text-[#a0a0a0] text-center">Loading...</p>
                 ) : stats ? (
-                  ['easy', 'medium', 'hard'].map(level => {
-                    const value = stats.byDifficulty[level as keyof typeof stats.byDifficulty]
-                    const color =
-                      level === 'easy'
-                        ? 'bg-green-500'
-                        : level === 'medium'
-                        ? 'bg-yellow-500'
-                        : 'bg-red-500'
+                  <div className="space-y-4">
+                    <div className="flex items-center justify-between">
+                      <span className="text-green-500 text-sm font-medium">Easy</span>
+                      <span className="text-white font-bold">{stats.byDifficulty.easy}</span>
+                    </div>
+                    <div className="w-full bg-[#242424] rounded-full h-3">
+                      <div
+                        className="bg-green-500 h-3 rounded-full transition-all duration-500"
+                        style={{ width: `${(stats.byDifficulty.easy / stats.totalProblems) * 100 || 0}%` }}
+                      />
+                    </div>
 
-                    return (
-                      <div key={level} className="space-y-1">
-                        <div className="flex justify-between text-sm">
-                          <span className="capitalize text-white/80">{level}</span>
-                          <span className="font-semibold text-white">{value}</span>
-                        </div>
-                        <div className="w-full bg-[#242424] rounded-full h-2">
-                          <div
-                            className={`${color} h-2 rounded-full transition-all`}
-                            style={{
-                              width: `${(value / stats.totalProblems) * 100 || 0}%`
-                            }}
-                          />
-                        </div>
-                      </div>
-                    )
-                  })
+                    <div className="flex items-center justify-between">
+                      <span className="text-yellow-500 text-sm font-medium">Medium</span>
+                      <span className="text-white font-bold">{stats.byDifficulty.medium}</span>
+                    </div>
+                    <div className="w-full bg-[#242424] rounded-full h-3">
+                      <div
+                        className="bg-yellow-500 h-3 rounded-full transition-all duration-500"
+                        style={{ width: `${(stats.byDifficulty.medium / stats.totalProblems) * 100 || 0}%` }}
+                      />
+                    </div>
+
+                    <div className="flex items-center justify-between">
+                      <span className="text-red-500 text-sm font-medium">Hard</span>
+                      <span className="text-white font-bold">{stats.byDifficulty.hard}</span>
+                    </div>
+                    <div className="w-full bg-[#242424] rounded-full h-3">
+                      <div
+                        className="bg-red-500 h-3 rounded-full transition-all duration-500"
+                        style={{ width: `${(stats.byDifficulty.hard / stats.totalProblems) * 100 || 0}%` }}
+                      />
+                    </div>
+                  </div>
                 ) : (
                   <p className="text-[#a0a0a0] text-center">No data yet</p>
                 )}
@@ -274,13 +284,22 @@ export default function DashboardPage() {
               </div>
             </Card>
 
-            <Card title="Top Topics">
-              <div className="h-64 flex items-center justify-center text-[#a0a0a0]">
-                Topics Analysis – Phase 1D
-              </div>
+            <Card title="TOP TOPICS">
+              <TopicsChart sessions={sessions} />
             </Card>
           </div>
         </div>
+        {/* Analytics Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card title="ACTIVITY CALENDAR" collapsible>
+            <StreakCalendar sessions={sessions} />
+          </Card>
+
+          <Card title="WEEKLY INSIGHTS" collapsible>
+            <WeeklyInsights sessions={sessions} />
+          </Card>
+        </div>
+
       </div>
 
       <Drawer
