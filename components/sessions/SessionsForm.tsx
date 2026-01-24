@@ -63,6 +63,25 @@ export function SessionForm({ onSubmit, onCancel, initialData, isEdit = false }:
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault()
+
+    // Validation
+    const totalProblems = formData.easy + formData.medium + formData.hard
+
+    if (totalProblems === 0) {
+      alert('Please add at least one problem (easy, medium, or hard)')
+      return
+    }
+
+    if (formData.timeSpentMinutes === 0) {
+      alert('Please enter time spent (must be greater than 0)')
+      return
+    }
+
+    if (formData.topics.length === 0) {
+      alert('Please select at least one topic')
+      return
+    }
+
     setLoading(true)
     try {
       await onSubmit(formData)
@@ -70,7 +89,7 @@ export function SessionForm({ onSubmit, onCancel, initialData, isEdit = false }:
       setLoading(false)
     }
   }
-
+  
   const handleTopicToggle = (topic: string) => {
     setFormData(prev => ({
       ...prev,
@@ -102,7 +121,7 @@ export function SessionForm({ onSubmit, onCancel, initialData, isEdit = false }:
             value={formData.platform}
             onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
             required
-            className="flex h-10 w-full rounded-lg border border-input bg-secondary px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all md:text-sm"
+            className="flex h-10 w-full rounded-lg border border-input bg-orange-600 px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all md:text-sm"
           >
             {PLATFORMS.map(platform => (
               <option key={platform} value={platform}>{platform}</option>
@@ -169,7 +188,7 @@ export function SessionForm({ onSubmit, onCancel, initialData, isEdit = false }:
       {/* Topics */}
       <div className="space-y-3">
         <Label>Topics Practiced</Label>
-        <div className="flex flex-wrap gap-2">
+        <div className="flex flex-wrap gap-3">
           {COMMON_TOPICS.map(topic => (
             <motion.button
               key={topic}
@@ -180,7 +199,7 @@ export function SessionForm({ onSubmit, onCancel, initialData, isEdit = false }:
               className={cn(
                 "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
                 formData.topics.includes(topic)
-                  ? "bg-primary text-primary-foreground shadow-sm"
+                  ? "bg-orange-600 text-primary-foreground shadow-sm"
                   : "bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground"
               )}
             >

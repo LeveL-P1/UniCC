@@ -3,6 +3,7 @@
 import { X } from 'lucide-react'
 import { useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
 import { cn } from '@/lib/utils'
 
 interface DrawerProps {
@@ -42,7 +43,7 @@ export function Drawer({ isOpen, onClose, title, children }: DrawerProps) {
             transition={{ duration: 0.2 }}
             className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
             onClick={onClose}
-          />
+          />        
 
           {/* Drawer */}
           <motion.div
@@ -50,8 +51,10 @@ export function Drawer({ isOpen, onClose, title, children }: DrawerProps) {
             animate={{ x: 0 }}
             exit={{ x: '100%' }}
             transition={{ type: 'spring', damping: 30, stiffness: 300 }}
-            className="fixed right-0 top-0 bottom-0 w-full md:w-[500px] bg-card border-l border-border z-50 shadow-2xl overflow-y-auto"
+            className="fixed right-0 top-0 bottom-0 w-full md:w-125 bg-card border-l border-border z-50 shadow-2xl overflow-y-auto"
           >
+            {/*className="fixed right-0 top-0 bottom-0 w-full md:w-[500px] bg-[#1a1a1a] border-l border-[#2a2a2a] z-50 shadow-2xl overflow-y-auto animate-slideInRight" */}
+
             {/* Header */}
             <div className="sticky top-0 bg-card/95 backdrop-blur-sm border-b border-border px-6 py-5 flex items-center justify-between z-10">
               <h2 className="text-xl font-outfit font-bold text-foreground">

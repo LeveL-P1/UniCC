@@ -5,7 +5,10 @@ import DashboardLayout from '@/components/layout/DashboardLayout'
 import { Card } from '@/components/ui/Card'
 import { Drawer } from '@/components/ui/Drawer'
 import { SessionForm, SessionFormData } from '@/components/sessions/SessionsForm'
-import { Plus, Edit2, Trash2, Filter } from 'lucide-react'
+import { Plus, Edit2, Trash2, Filter, FileText } from 'lucide-react'
+import toast from 'react-hot-toast'
+import { TableRowSkeleton } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface Session {
   id: string
@@ -55,11 +58,15 @@ export default function SessionsPage() {
       })
 
       if (res.ok) {
+        toast.success('Session added successfully! 🎉')
         setIsDrawerOpen(false)
         fetchSessions()
+      } else {
+        toast.error('Failed to add session')
       }
     } catch (error) {
       console.error('Error adding session:', error)
+      toast.error('Something went wrong')
     }
   }
 
@@ -77,12 +84,16 @@ export default function SessionsPage() {
       })
 
       if (res.ok) {
+        toast.success('Session updated successfully! ✅')
         setIsDrawerOpen(false)
         setEditingSession(null)
         fetchSessions()
+      } else {
+        toast.error('Failed to update session')
       }
     } catch (error) {
       console.error('Error updating session:', error)
+      toast.error('Something went wrong')
     }
   }
 
@@ -95,10 +106,14 @@ export default function SessionsPage() {
       })
 
       if (res.ok) {
+        toast.success('Session deleted successfully')
         fetchSessions()
+      } else {
+        toast.error('Failed to delete session')
       }
     } catch (error) {
       console.error('Error deleting session:', error)
+      toast.error('Something went wrong')
     }
   }
 
@@ -112,8 +127,8 @@ export default function SessionsPage() {
     setEditingSession(null)
   }
 
-  const filteredSessions = filterPlatform === 'ALL' 
-    ? sessions 
+  const filteredSessions = filterPlatform === 'ALL'
+    ? sessions
     : sessions.filter(s => s.platform === filterPlatform)
 
   const platforms = ['ALL', ...Array.from(new Set(sessions.map(s => s.platform)))]
@@ -121,7 +136,7 @@ export default function SessionsPage() {
   return (
     <DashboardLayout>
       <div className="p-6 space-y-6">
-        
+
         {/* Header */}
         <div className="flex justify-between items-center">
           <div>
@@ -168,19 +183,48 @@ export default function SessionsPage() {
         </Card>
 
         {/* Sessions Table */}
+        {/* Sessions Table */}
         <Card>
           {loading ? (
-            <p className="text-center text-[#a0a0a0] py-12">Loading sessions...</p>
-          ) : filteredSessions.length === 0 ? (
-            <div className="text-center py-12">
-              <p className="text-[#a0a0a0] mb-4">No sessions found</p>
-              <button
-                onClick={() => setIsDrawerOpen(true)}
-                className="text-[#ff6b35] hover:text-[#e55a28] font-medium"
-              >
-                Add your first session
-              </button>
+            <div className="overflow-x-auto">
+              <table className="w-full">
+                <thead>
+                  <tr className="border-b border-[#2a2a2a]">
+                    <th className="text-left py-3 px-4 text-sm font-medium text-[#a0a0a0] uppercase tracking-wider">Date</th>
+                    <th className="text-left py-3 px-4 text-sm font-medium text-[#a0a0a0] uppercase tracking-wider">Platform</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-[#a0a0a0] uppercase tracking-wider">Problems</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-[#a0a0a0] uppercase tracking-wider">Easy</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-[#a0a0a0] uppercase tracking-wider">Medium</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-[#a0a0a0] uppercase tracking-wider">Hard</th>
+                    <th className="text-center py-3 px-4 text-sm font-medium text-[#a0a0a0] uppercase tracking-wider">Time</th>
+                    <th className="text-right py-3 px-4 text-sm font-medium text-[#a0a0a0] uppercase tracking-wider">Actions</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <TableRowSkeleton />
+                  <TableRowSkeleton />
+                  <TableRowSkeleton />
+                  <TableRowSkeleton />
+                  <TableRowSkeleton />
+                </tbody>
+              </table>
             </div>
+          ) : filteredSessions.length === 0 ? (
+            <EmptyState
+              icon={FileText}
+              title={filterPlatform === 'ALL' ? 'No sessions found' : `No ${filterPlatform} sessions`}
+              description={filterPlatform === 'ALL'
+                ? 'Start tracking your coding practice by adding your first session'
+                : `You haven't logged any ${filterPlatform} sessions yet`
+              }
+              action={{
+                label: 'Add Session',
+                onClick: () => {
+                  setEditingSession(null)
+                  setIsDrawerOpen(true)
+                }
+              }}
+            />
           ) : (
             <div className="overflow-x-auto">
               <table className="w-full">
@@ -198,11 +242,10 @@ export default function SessionsPage() {
                 </thead>
                 <tbody>
                   {filteredSessions.map((session, index) => (
-                    <tr 
+                    <tr
                       key={session.id}
-                      className={`border-b border-[#2a2a2a] hover:bg-[#242424] transition-colors ${
-                        index === filteredSessions.length - 1 ? 'border-b-0' : ''
-                      }`}
+                      className={`border-b border-[#2a2a2a] hover:bg-[#242424] transition-colors duration-200 ${index === filteredSessions.length - 1 ? 'border-b-0' : ''
+                        }`}
                     >
                       <td className="py-4 px-4 text-white">
                         {new Date(session.date).toLocaleDateString('en-US', {
@@ -227,14 +270,14 @@ export default function SessionsPage() {
                         <div className="flex items-center justify-end gap-2">
                           <button
                             onClick={() => openEditDrawer(session)}
-                            className="p-2 rounded-lg hover:bg-[#2a2a2a] text-[#a0a0a0] hover:text-white transition-colors"
+                            className="p-2 rounded-lg hover:bg-[#2a2a2a] text-[#a0a0a0] hover:text-white transition-all duration-200"
                             title="Edit"
                           >
                             <Edit2 size={16} />
                           </button>
                           <button
                             onClick={() => handleDeleteSession(session.id)}
-                            className="p-2 rounded-lg hover:bg-red-500/10 text-[#a0a0a0] hover:text-red-500 transition-colors"
+                            className="p-2 rounded-lg hover:bg-red-500/10 text-[#a0a0a0] hover:text-red-500 transition-all duration-200"
                             title="Delete"
                           >
                             <Trash2 size={16} />
@@ -248,7 +291,6 @@ export default function SessionsPage() {
             </div>
           )}
         </Card>
-
       </div>
 
       {/* Add/Edit Session Drawer */}

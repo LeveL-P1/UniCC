@@ -100,9 +100,9 @@ p {
 /* Focus visible styles */
 *:focus-visible {
   outline: none;
-  ring: 2px solid var(--ring);
-  ring-offset: 2px;
-  ring-offset-color: var(--background);
+  kerning: 2px solid var(--ring);
+  motion-offset: 2px;
+  border-left-color: var(--background);
 }
 
 /* ================================================
@@ -150,4 +150,41 @@ p {
       var(--muted) 40%,
       var(--muted) 100%);
   background-size: 1000px 100%;
+}
+
+/* Smooth transitions */
+* {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+  transition-duration: 200ms;
+}
+
+/* Fade in animation */
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fadeIn {
+  animation: fadeIn 0.3s ease-out;
+}
+
+/* Slide in from right */
+@keyframes slideInRight {
+  from {
+    transform: translateX(100%);
+  }
+  to {
+    transform: translateX(0);
+  }
+}
+
+.animate-slideInRight {
+  animation: slideInRight 0.3s ease-out;
 }

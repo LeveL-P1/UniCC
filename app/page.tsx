@@ -7,11 +7,14 @@ import { Card, KPICard } from '@/components/ui/Card'
 import { Drawer } from '@/components/ui/Drawer'
 import { SessionForm, SessionFormData } from '@/components/sessions/SessionsForm'
 import { Button } from '@/components/ui/button'
-import { Code2, Target, Flame, Clock, Plus } from 'lucide-react'
+import { Code2, Target, Flame, Clock, Plus, FileText } from 'lucide-react'
 import { ProblemsPerDayChart } from '@/components/charts/ProblemsPerDayChart'
 import { TopicsChart } from '@/components/charts/TopicsCharts'
 import { StreakCalendar } from '@/components/charts/StreakCalender'
 import { WeeklyInsights } from '@/components/charts/WeeklyInsights'
+import toast from 'react-hot-toast'
+import { KPICardSkeleton } from '@/components/ui/Skeleton'
+import { EmptyState } from '@/components/ui/EmptyState'
 
 interface Session {
   id: string
@@ -72,11 +75,15 @@ export default function DashboardPage() {
       })
 
       if (res.ok) {
+        toast.success('Session added successfully! 🎉')
         setIsDrawerOpen(false)
         fetchSessions()
+      } else {
+        toast.error('Failed to add session. Please try again.')
       }
     } catch (error) {
       console.error('Error adding session:', error)
+      toast.error('Something went wrong. Please try again.')
     }
   }
 
@@ -135,38 +142,43 @@ export default function DashboardPage() {
           </Button>
         </motion.div>
 
-        {/* KPI Section */}
-        <div className="space-y-3">
-          <h2 className="text-sm font-semibold tracking-wide text-[#a0a0a0] uppercase">
-            Overview
-          </h2>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <KPICard
-              title="Total Problems"
-              value={loading ? '...' : stats?.totalProblems || 0}
-              subtitle="All time"
-              icon={<Code2 size={24} />}
-            />
-            <KPICard
-              title="Total Sessions"
-              value={loading ? '...' : stats?.totalSessions || 0}
-              subtitle="Practice sessions"
-              icon={<Target size={24} />}
-            />
-            <KPICard
-              title="Current Streak"
-              value={loading ? '...' : streak}
-              subtitle="days"
-              icon={<Flame size={24} />}
-            />
-            <KPICard
-              title="Total Time"
-              value={loading ? '...' : `${Math.floor((stats?.totalTime || 0) / 60)}h`}
-              subtitle="Practice time"
-              icon={<Clock size={24} />}
-            />
-          </div>
+        {/* KPI Cards Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+          {loading ? (
+            <>
+              <KPICardSkeleton />
+              <KPICardSkeleton />
+              <KPICardSkeleton />
+              <KPICardSkeleton />
+            </>
+          ) : (
+            <>
+              <KPICard
+                title="Total Problems"
+                value={stats?.totalProblems || 0}
+                subtitle="All time"
+                icon={<Code2 size={24} />}
+              />
+              <KPICard
+                title="Total Sessions"
+                value={stats?.totalSessions || 0}
+                subtitle="Practice sessions"
+                icon={<Target size={24} />}
+              />
+              <KPICard
+                title="Current Streak"
+                value={streak}
+                subtitle="days"
+                icon={<Flame size={24} />}
+              />
+              <KPICard
+                title="Total Time"
+                value={`${Math.floor((stats?.totalTime || 0) / 60)}h`}
+                subtitle="Practice time"
+                icon={<Clock size={24} />}
+              />
+            </>
+          )}
         </div>
 
         {/* Insights */}
@@ -235,53 +247,56 @@ export default function DashboardPage() {
           </h2>
 
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-            <Card title="Recent Sessions" className="lg:col-span-2" collapsible>
-              <div className="space-y-3">
-                {loading ? (
-                  <p className="text-center py-10 text-[#a0a0a0]">Loading sessions...</p>
-                ) : sessions.length === 0 ? (
-                  <p className="text-center py-10 text-[#a0a0a0]">
-                    No sessions yet. Start by adding one.
-                  </p>
-                ) : (
-                  sessions.slice(0, 5).map(session => (
+            <Card title="RECENT SESSIONS" className="lg:col-span-2" collapsible>
+              {loading ? (
+                <div className="space-y-3">
+                  {[1, 2, 3].map(i => (
+                    <div key={i} className="h-20 bg-[#242424] rounded-lg animate-pulse" />
+                  ))}
+                </div>
+              ) : sessions.length === 0 ? (
+                <EmptyState
+                  icon={FileText}
+                  title="No sessions yet"
+                  description="Start tracking your coding practice by adding your first session"
+                  action={{
+                    label: 'Add Session',
+                    onClick: () => setIsDrawerOpen(true)
+                  }}
+                />
+              ) : (
+                <div className="space-y-3">
+                  {sessions.slice(0, 5).map(session => (
                     <div
                       key={session.id}
-                      className="
-                        p-4 rounded-xl
-                        bg-[#1f1f1f]
-                        border border-white/5
-                        hover:border-white/10
-                        transition
-                      "
+                      className="p-4 bg-[#242424] rounded-lg border border-[#2a2a2a] hover:border-[#3a3a3a] transition-all duration-200 cursor-pointer"
                     >
-                      <div className="flex justify-between items-start">
+                      <div className="flex items-start justify-between mb-2">
                         <div>
-                          <p className="font-medium text-white">{session.platform}</p>
-                          <p className="text-xs text-[#a0a0a0]">
-                            {new Date(session.date).toLocaleDateString()}
+                          <h4 className="text-white font-medium">{session.platform}</h4>
+                          <p className="text-sm text-[#a0a0a0]">
+                            {new Date(session.date).toLocaleDateString('en-US', {
+                              month: 'short',
+                              day: 'numeric',
+                              year: 'numeric'
+                            })}
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[#ff6b35] font-bold">
-                            {session.problemsSolved}
-                          </p>
+                          <p className="text-[#ff6b35] font-bold">{session.problemsSolved}</p>
                           <p className="text-xs text-[#a0a0a0]">problems</p>
                         </div>
                       </div>
-
-                      <div className="flex gap-3 text-xs mt-3">
-                        <span className="text-green-500">E {session.easy}</span>
-                        <span className="text-yellow-500">M {session.medium}</span>
-                        <span className="text-red-500">H {session.hard}</span>
-                        <span className="ml-auto text-[#a0a0a0]">
-                          {session.timeSpentMinutes}m
-                        </span>
+                      <div className="flex gap-2 text-xs">
+                        <span className="text-green-500">E: {session.easy}</span>
+                        <span className="text-yellow-500">M: {session.medium}</span>
+                        <span className="text-red-500">H: {session.hard}</span>
+                        <span className="text-[#a0a0a0] ml-auto">{session.timeSpentMinutes}m</span>
                       </div>
                     </div>
-                  ))
-                )}
-              </div>
+                  ))}
+                </div>
+              )}
             </Card>
 
             <Card title="TOP TOPICS">
@@ -289,6 +304,9 @@ export default function DashboardPage() {
             </Card>
           </div>
         </div>
+
+
+
         {/* Analytics Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card title="ACTIVITY CALENDAR" collapsible>

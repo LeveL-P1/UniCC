@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Inter, Outfit } from "next/font/google";
+import { Toaster } from 'react-hot-toast';
 import "./globals.css";
 
 const inter = Inter({
@@ -14,7 +15,7 @@ const outfit = Outfit({
 });
 
 export const metadata: Metadata = {
-  title: "Developer Productivity Dashboard",
+  title: "UNICC - Developer Productivity Dashboard",
   description: "Track your coding practice across platforms",
 };
 
@@ -30,6 +31,28 @@ export default function RootLayout({
           className={`${inter.variable} ${outfit.variable} font-sans antialiased`}
         >
           {children}
+          <Toaster 
+            position="top-right"
+            toastOptions={{
+              style: {
+                background: '#1a1a1a',
+                color: '#fff',
+                border: '1px solid #2a2a2a',
+              },
+              success: {
+                iconTheme: {
+                  primary: '#ff6b35',
+                  secondary: '#fff',
+                },
+              },
+              error: {
+                iconTheme: {
+                  primary: '#ef4444',
+                  secondary: '#fff',
+                },
+              },
+            }}
+          />
         </body>
       </html>
     </ClerkProvider>
