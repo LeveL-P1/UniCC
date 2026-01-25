@@ -1,13 +1,14 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
+
+export const dynamic = 'force-dynamic'
 
 export async function POST(request: Request) {
   try {
     // Check if user is authenticated
     const { userId } = await auth()
-    
+
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized - No userId found' },
@@ -17,7 +18,7 @@ export async function POST(request: Request) {
 
     // Get the current user from Clerk
     const clerkUser = await currentUser()
-    
+
     if (!clerkUser) {
       return NextResponse.json(
         { error: 'Unauthorized - No user found' },
@@ -94,7 +95,7 @@ export async function GET(request: Request) {
   try {
     // Check if user is authenticated
     const { userId } = await auth()
-    
+
     if (!userId) {
       return NextResponse.json(
         { error: 'Unauthorized' },
