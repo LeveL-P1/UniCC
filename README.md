@@ -1,36 +1,108 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# UNICC - Developer Productivity Dashboard
 
-## Getting Started
+A modern, full-stack web application to track coding practice across multiple platforms (LeetCode, Codeforces, GeeksforGeeks, etc.) with beautiful data visualizations and analytics.
 
-First, run the development server:
+## ✨ Features
 
+### Core Functionality
+- 🔐 **Authentication** - Secure user authentication with Clerk
+- ➕ **Session Management** - Add, edit, and delete coding practice sessions
+- 📊 **Analytics Dashboard** - Real-time statistics and insights
+- 🎯 **Progress Tracking** - Track problems solved by difficulty and platform
+
+### Visualizations
+- 📈 **Line Charts** - 30-day problem-solving trends
+- 📊 **Bar Charts** - Weekly productivity insights
+- 🔥 **Streak Calendar** - GitHub-style activity heatmap
+- 🎨 **Difficulty Distribution** - Visual breakdown of problem difficulty
+- 🏷️ **Topics Analysis** - Track most practiced topics
+
+### UX Features
+- 🌙 **Dark Theme** - Modern, eye-friendly dark interface
+- 📱 **Responsive Design** - Works seamlessly on all devices
+- ⚡ **Real-time Updates** - Instant feedback with toast notifications
+- 🎭 **Loading States** - Smooth skeleton loaders
+- ✨ **Smooth Animations** - Polished micro-interactions
+
+## 🛠️ Tech Stack
+
+**Frontend:**
+- Next.js 15 (App Router)
+- TypeScript
+- Tailwind CSS
+- Recharts (Data visualization)
+- React Hot Toast (Notifications)
+
+**Backend:**
+- Next.js API Routes
+- Prisma ORM
+- PostgreSQL (Neon)
+
+**Authentication:**
+- Clerk
+
+## 🚀 Getting Started
+
+### Prerequisites
+- Node.js 18+ installed
+- A Neon account (free tier works)
+- A Clerk account (free tier works)
+
+### Installation
+
+1. Clone the repository:
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+git clone https://github.com/yourusername/unicc-dashboard.git
+cd unicc-dashboard
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+2. Install dependencies:
+```bash
+npm install
+```
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+3. Set up environment variables:
+Create a `.env` file in the root directory:
+```env
+DATABASE_URL="your_neon_database_url"
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your_clerk_publishable_key"
+CLERK_SECRET_KEY="your_clerk_secret_key"
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+4. Set up the database:
+```bash
+npx prisma db push
+npx prisma generate
+```
 
-## Learn More
+5. Run the development server:
+```bash
+npm run dev
+```
 
-To learn more about Next.js, take a look at the following resources:
+Open [http://localhost:3000](http://localhost:3000) to see the application.
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## 📸 Screenshots
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+[ screenshots of dashboard here soon]
 
-## Deploy on Vercel
+## 🎯 Future Enhancements (v2.0)
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+- Platform API integrations (LeetCode, Codeforces auto-sync)
+- AI-powered recommendations
+- Advanced analytics and insights
+- Export data to CSV/PDF
+- Contest performance tracking
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+## 📝 License
+
+MIT License
+
+## 👤 Author
+
+- GitHub: [Level-P1](https://github.com/Level-P1)
+---
+Explicitly a car(🐈) lover should give star to this project
+
+
+Built with 🧠 using Next.js and TypeScript
