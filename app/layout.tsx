@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Inter, Outfit } from "next/font/google";
+import { Inter, Outfit, JetBrains_Mono } from "next/font/google";
 import { Toaster } from 'react-hot-toast';
 import "./globals.css";
 
@@ -14,11 +14,22 @@ const outfit = Outfit({
   subsets: ["latin"],
 });
 
-export const metadata: Metadata = {
-  title: "UNICC - Developer Productivity Dashboard",
-  description: "Track your coding practice across platforms",
-};
+const jetbrainsMono = JetBrains_Mono({
+  variable: "--font-mono",
+  subsets: ["latin"],
+});
 
+export const metadata: Metadata = {
+  title: "UNICC Dashboard - Track Your Coding Practice",
+  description: "A modern developer productivity dashboard to track coding practice across platforms like LeetCode, Codeforces, and more. Visualize your progress, maintain streaks, and analyze your performance.",
+  keywords: ["coding practice", "leetcode tracker", "developer productivity", "coding dashboard"],
+  authors: [{ name: "Level-P1" }],
+  openGraph: {
+    title: "UNICC - Developer Productivity Dashboard",
+    description: "Track your coding practice and visualize your progress",
+    type: "website",
+  },
+};
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -28,10 +39,10 @@ export default function RootLayout({
     <ClerkProvider>
       <html lang="en">
         <body
-          className={`${inter.variable} ${outfit.variable} font-sans antialiased`}
+          className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} font-sans antialiased`}
         >
           {children}
-          <Toaster 
+          <Toaster
             position="top-right"
             toastOptions={{
               style: {

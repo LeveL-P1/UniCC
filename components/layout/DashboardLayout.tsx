@@ -26,7 +26,7 @@ export default function DashboardLayout({ children }: { children: React.ReactNod
             <div className="flex items-center gap-3">
               <div className="
                 w-9 h-9 rounded-xl
-                bg-linear-to-br from-orange-500 to-orange-600
+                bg-linear-to-br from-orange-400 to-orange-800
                 flex items-center justify-center
                 shadow-lg shadow-orange-500/20
               ">
@@ -101,8 +101,8 @@ function NavLink({
         relative flex items-center gap-2 px-4 py-2 rounded-xl text-sm
         transition-all duration-200
         ${active
-          ? 'text-white bg-white/10'
-          : 'text-white/60 hover:text-white hover:bg-white/5'
+          ? 'text-white bg-orange-600'
+          : 'text-white/60 hover:text-white hover:bg-orange-950'
         }
         hover:-translate-y-px
       `}

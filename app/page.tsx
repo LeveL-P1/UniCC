@@ -15,6 +15,7 @@ import { WeeklyInsights } from '@/components/charts/WeeklyInsights'
 import toast from 'react-hot-toast'
 import { KPICardSkeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { SystemStatusWidget, MiniGoalWidget, QuickTipWidget } from '@/components/dashboard/MicroWidgets'
 
 interface Session {
   id: string
@@ -121,25 +122,34 @@ export default function DashboardPage() {
           initial={{ opacity: 0, y: -20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.3 }}
-          className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4"
+          className="flex flex-col xl:flex-row xl:items-end justify-between gap-6"
         >
-          <div>
-            <h1 className="text-4xl font-outfit font-bold tracking-tight">
-              Dashboard
-            </h1>
-            <p className="text-sm text-muted-foreground mt-2">
-              Your coding practice at a glance
-            </p>
+          <div className="space-y-4">
+            <div>
+              <h1 className="text-4xl font-outfit font-bold tracking-tight text-foreground">
+                DASHBOARD
+              </h1>
+              <p className="text-sm text-muted-foreground mt-1 font-mono uppercase tracking-widest">
+                // System Overview & Analytics
+              </p>
+            </div>
+            <div className="flex flex-wrap items-center gap-4">
+              <SystemStatusWidget />
+              <QuickTipWidget />
+            </div>
           </div>
 
-          <Button
-            onClick={() => setIsDrawerOpen(true)}
-            size="lg"
-            className="gap-2 shadow-lg shadow-primary/20"
-          >
-            <Plus size={18} />
-            Add Session
-          </Button>
+          <div className="flex items-center gap-4">
+            <MiniGoalWidget current={stats?.totalProblems || 0} target={100} />
+            <Button
+              onClick={() => setIsDrawerOpen(true)}
+              size="lg"
+              className="gap-2 shadow-lg shadow-primary/10 rounded-xl"
+            >
+              <Plus size={18} />
+              Add Session
+            </Button>
+          </div>
         </motion.div>
 
         {/* KPI Cards Grid */}
@@ -274,7 +284,7 @@ export default function DashboardPage() {
                       <div className="flex items-start justify-between mb-2">
                         <div>
                           <h4 className="text-white font-medium">{session.platform}</h4>
-                          <p className="text-sm text-[#a0a0a0]">
+                          <p className="text-sm text-muted-foreground font-mono">
                             {new Date(session.date).toLocaleDateString('en-US', {
                               month: 'short',
                               day: 'numeric',
@@ -283,15 +293,15 @@ export default function DashboardPage() {
                           </p>
                         </div>
                         <div className="text-right">
-                          <p className="text-[#ff6b35] font-bold">{session.problemsSolved}</p>
-                          <p className="text-xs text-[#a0a0a0]">problems</p>
+                          <p className="text-primary font-bold font-mono">{session.problemsSolved}</p>
+                          <p className="text-xs text-muted-foreground uppercase tracking-wider">problems</p>
                         </div>
                       </div>
-                      <div className="flex gap-2 text-xs">
+                      <div className="flex gap-3 text-xs font-mono">
                         <span className="text-green-500">E: {session.easy}</span>
                         <span className="text-yellow-500">M: {session.medium}</span>
                         <span className="text-red-500">H: {session.hard}</span>
-                        <span className="text-[#a0a0a0] ml-auto">{session.timeSpentMinutes}m</span>
+                        <span className="text-muted-foreground ml-auto">{session.timeSpentMinutes}m</span>
                       </div>
                     </div>
                   ))}
@@ -318,7 +328,7 @@ export default function DashboardPage() {
           </Card>
         </div>
 
-      </div>
+      </div >
 
       <Drawer
         isOpen={isDrawerOpen}
@@ -330,6 +340,6 @@ export default function DashboardPage() {
           onCancel={() => setIsDrawerOpen(false)}
         />
       </Drawer>
-    </DashboardLayout>
+    </DashboardLayout >
   )
 }
