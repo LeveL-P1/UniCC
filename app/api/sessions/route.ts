@@ -1,8 +1,9 @@
+export const dynamic = 'force-dynamic'
+
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
 
-export const dynamic = 'force-dynamic'
 
 export async function POST(request: Request) {
   try {
