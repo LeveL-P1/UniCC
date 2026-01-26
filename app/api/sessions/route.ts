@@ -123,6 +123,7 @@ export async function GET(request: Request) {
     const limit = searchParams.get('limit')
 
     // Build filter conditions
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
     const where: any = {
       userId: user.id
     }
