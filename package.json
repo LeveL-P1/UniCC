@@ -11,7 +11,6 @@
   "dependencies": {
     "@clerk/nextjs": "^6.36.5",
     "@prisma/client": "^5.22.0",
-    "@postinstall": "prisma generate",
     "@radix-ui/react-label": "^2.1.8",
     "@radix-ui/react-slot": "^1.2.4",
     "class-variance-authority": "^0.7.1",
