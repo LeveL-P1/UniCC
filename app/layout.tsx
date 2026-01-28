@@ -3,6 +3,7 @@ import { ClerkProvider } from "@clerk/nextjs";
 import { Inter, Outfit, JetBrains_Mono } from "next/font/google";
 import { Toaster } from 'react-hot-toast';
 import "./globals.css";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 const inter = Inter({
   variable: "--font-inter",
@@ -42,6 +43,7 @@ export default function RootLayout({
           className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} font-sans antialiased`}
         >
           {children}
+          <SpeedInsights />
           <Toaster
             position="top-right"
             toastOptions={{
