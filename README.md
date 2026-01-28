@@ -26,3 +26,17 @@ A full-stack dashboard to track coding practice sessions and visualize productiv
 git clone https://github.com/Level-P1/unicc-dashboard.git
 cd unicc-dashboard
 npm install
+
+## Environment setup
+- Set up environment variables: Create a .env file in the root directory:
+
+DATABASE_URL="your_neon_database_url"
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your_clerk_publishable_key"
+CLERK_SECRET_KEY="your_clerk_secret_key"
+
+## Set up the database:
+
+npx prisma db push
+npx prisma generate
+
+Built with 🧠 using Next.js and TypeScript by P1
