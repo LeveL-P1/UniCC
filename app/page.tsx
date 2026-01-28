@@ -130,7 +130,7 @@ export default function DashboardPage() {
                 DASHBOARD
               </h1>
               <p className="text-sm text-muted-foreground mt-1 font-mono uppercase tracking-widest">
-                // System Overview & Analytics
+                {/* System Overview & Analytics */}
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-4">

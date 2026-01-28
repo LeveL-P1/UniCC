@@ -1,5 +1,4 @@
-export const dynamic = 'force-dynamic'
-
+export const runtime = 'nodejs'
 import { auth, currentUser } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'

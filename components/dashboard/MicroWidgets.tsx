@@ -1,4 +1,4 @@
-import { Zap, Activity, Database, CheckCircle2 } from 'lucide-react'
+import { Zap, Activity, Database } from 'lucide-react'
 
 export function SystemStatusWidget() {
     return (
@@ -28,7 +28,7 @@ export function MiniGoalWidget({ current, target }: { current: number, target: n
     const percentage = Math.min((current / target) * 100, 100)
 
     return (
-        <div className="flex flex-col gap-1 min-w-[140px]">
+        <div className="flex flex-col gap-1 min-w-35">
             <div className="flex justify-between text-[10px] font-mono uppercase tracking-wider text-muted-foreground">
                 <span>Weekly Target</span>
                 <span>{Math.round(percentage)}%</span>
