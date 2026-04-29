@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getPerformanceTrends } from '@/lib/analytics/service'
+import { getOrSetCache } from '@/lib/cache/memoryCache'
 
 export async function GET() {
   try {
@@ -20,7 +21,9 @@ export async function GET() {
       })
     }
 
-    const trends = await getPerformanceTrends(user.id)
+    const trends = await getOrSetCache(`analytics:${user.id}:trends`, 45_000, () =>
+      getPerformanceTrends(user.id)
+    )
     return NextResponse.json({ trends })
   } catch (error) {
     console.error('Error fetching trends:', error)

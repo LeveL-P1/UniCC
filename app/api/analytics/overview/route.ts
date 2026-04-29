@@ -4,6 +4,7 @@ import { auth } from '@clerk/nextjs/server'
 import { NextResponse } from 'next/server'
 import { prisma } from '@/lib/prisma'
 import { getOverviewMetrics } from '@/lib/analytics/service'
+import { getOrSetCache } from '@/lib/cache/memoryCache'
 
 export async function GET() {
   try {
@@ -27,7 +28,9 @@ export async function GET() {
       })
     }
 
-    const metrics = await getOverviewMetrics(user.id)
+    const metrics = await getOrSetCache(`analytics:${user.id}:overview`, 60_000, () =>
+      getOverviewMetrics(user.id)
+    )
     return NextResponse.json({ metrics })
   } catch (error) {
     console.error('Error fetching analytics overview:', error)

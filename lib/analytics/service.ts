@@ -1,5 +1,6 @@
 import { Platform } from '@prisma/client'
 import { prisma as db } from '@/lib/prisma'
+import { detectPlateau, pearsonCorrelation, velocityPerWeek } from '@/lib/analytics/math'
 
 export interface OverviewMetrics {
   totalSolved: number
@@ -168,19 +169,6 @@ function getRangeStart(range: AdvancedInsightsOptions['range']) {
   return start
 }
 
-function pearsonCorrelation(xs: number[], ys: number[]) {
-  if (xs.length !== ys.length || xs.length < 2) return 0
-  const n = xs.length
-  const sumX = xs.reduce((a, b) => a + b, 0)
-  const sumY = ys.reduce((a, b) => a + b, 0)
-  const sumXY = xs.reduce((sum, x, i) => sum + x * ys[i], 0)
-  const sumX2 = xs.reduce((sum, x) => sum + x * x, 0)
-  const sumY2 = ys.reduce((sum, y) => sum + y * y, 0)
-  const numerator = n * sumXY - sumX * sumY
-  const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY))
-  return denominator === 0 ? 0 : Number((numerator / denominator).toFixed(3))
-}
-
 export async function getAdvancedInsights(userId: string, options: AdvancedInsightsOptions = {}) {
   const rangeStart = getRangeStart(options.range)
   const benchmark = options.benchmark ?? 'INTERMEDIATE'
@@ -241,9 +229,10 @@ export async function getAdvancedInsights(userId: string, options: AdvancedInsig
   const snapshotGrowth = snapshots.length > 1
     ? snapshots[snapshots.length - 1].totalSolved - snapshots[0].totalSolved
     : sessions.reduce((sum, s) => sum + s.problemsSolved, 0)
-  const velocityPerWeek = Number((snapshotGrowth / Math.max(1, Math.ceil((new Date().getTime() - rangeStart.getTime()) / (1000 * 60 * 60 * 24 * 7)))).toFixed(2))
+  const elapsedDays = Math.ceil((new Date().getTime() - rangeStart.getTime()) / (1000 * 60 * 60 * 24))
+  const velocity = velocityPerWeek(snapshotGrowth, elapsedDays)
   const latestThree = snapshots.slice(-3).map(s => s.totalSolved)
-  const plateauDetected = latestThree.length === 3 && latestThree[2] - latestThree[0] <= 2
+  const plateauDetected = detectPlateau(latestThree)
 
   const topicMap = new Map<string, number>()
   sessions.forEach(s => s.topics.forEach(topic => {
@@ -277,7 +266,7 @@ export async function getAdvancedInsights(userId: string, options: AdvancedInsig
     metrics: {
       consistencyScore,
       contestPracticeCorrelation,
-      velocityPerWeek,
+      velocityPerWeek: velocity,
       plateauDetected,
       difficultyMix: totalDifficulty
     },
@@ -285,8 +274,8 @@ export async function getAdvancedInsights(userId: string, options: AdvancedInsig
     weaknesses,
     benchmark: {
       targetVelocityPerWeek: benchmarkVelocity,
-      currentVelocityPerWeek: velocityPerWeek,
-      onTrack: velocityPerWeek >= benchmarkVelocity
+      currentVelocityPerWeek: velocity,
+      onTrack: velocity >= benchmarkVelocity
     }
   }
 }
