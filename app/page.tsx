@@ -7,7 +7,7 @@ import { Card, KPICard } from '@/components/ui/Card'
 import { Drawer } from '@/components/ui/Drawer'
 import { SessionForm, SessionFormData } from '@/components/sessions/SessionsForm'
 import { Button } from '@/components/ui/button'
-import { Code2, Target, Flame, Clock, Plus, FileText } from 'lucide-react'
+import { Code2, Target, Flame, Clock, Plus, FileText, Trophy, BarChart3 } from 'lucide-react'
 import { ProblemsPerDayChart } from '@/components/charts/ProblemsPerDayChart'
 import { TopicsChart } from '@/components/charts/TopicsCharts'
 import { StreakCalendar } from '@/components/charts/StreakCalender'
@@ -16,6 +16,7 @@ import toast from 'react-hot-toast'
 import { KPICardSkeleton } from '@/components/ui/Skeleton'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { SystemStatusWidget, MiniGoalWidget, QuickTipWidget } from '@/components/dashboard/MicroWidgets'
+import { UnifiedRatingTimelineChart } from '@/components/charts/UnifiedRatingTimelineChart'
 
 interface Session {
   id: string
@@ -41,10 +42,52 @@ interface Stats {
   }
 }
 
+interface OverviewMetrics {
+  totalSolved: number
+  syncedSolved: number
+  manualSolved: number
+  activeDays: number
+  averageProblemsPerDay: number
+  strongestPlatform: string | null
+  totalSessions: number
+  totalTimeMinutes: number
+  byDifficulty: {
+    easy: number
+    medium: number
+    hard: number
+  }
+}
+
+interface RatingPoint {
+  platform: string
+  date: string
+  rating: number | null
+  contestName?: string | null
+}
+
+interface PlatformComparison {
+  platform: string
+  totalSolved: number
+  easySolved: number
+  mediumSolved: number
+  hardSolved: number
+  rating: number | null
+  lastUpdatedAt: string
+}
+
+interface PerformanceTrends {
+  weekly: { problemsSolved: number; timeSpentMinutes: number; sessions: number }
+  monthly: { problemsSolved: number; timeSpentMinutes: number; sessions: number }
+}
+
 export default function DashboardPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [sessions, setSessions] = useState<Session[]>([])
   const [stats, setStats] = useState<Stats | null>(null)
+  const [overview, setOverview] = useState<OverviewMetrics | null>(null)
+  const [ratingTimeline, setRatingTimeline] = useState<RatingPoint[]>([])
+  const [platformComparison, setPlatformComparison] = useState<PlatformComparison[]>([])
+  const [trends, setTrends] = useState<PerformanceTrends | null>(null)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -53,10 +96,26 @@ export default function DashboardPage() {
 
   const fetchSessions = async () => {
     try {
-      const res = await fetch('/api/sessions')
-      const data = await res.json()
-      setSessions(data.sessions || [])
-      setStats(data.stats || null)
+      const [sessionsRes, overviewRes, timelineRes, comparisonRes, trendsRes] = await Promise.all([
+        fetch('/api/sessions'),
+        fetch('/api/analytics/overview'),
+        fetch('/api/analytics/rating-timeline'),
+        fetch('/api/analytics/comparison'),
+        fetch('/api/analytics/trends')
+      ])
+
+      const sessionsData = await sessionsRes.json()
+      const overviewData = await overviewRes.json()
+      const timelineData = await timelineRes.json()
+      const comparisonData = await comparisonRes.json()
+      const trendsData = await trendsRes.json()
+
+      setSessions(sessionsData.sessions || [])
+      setStats(sessionsData.stats || null)
+      setOverview(overviewData.metrics || null)
+      setRatingTimeline(timelineData.timeline || [])
+      setPlatformComparison(comparisonData.comparison || [])
+      setTrends(trendsData.trends || null)
     } catch (error) {
       console.error('Error fetching sessions:', error)
     } finally {
@@ -140,7 +199,7 @@ export default function DashboardPage() {
           </div>
 
           <div className="flex items-center gap-4">
-            <MiniGoalWidget current={stats?.totalProblems || 0} target={100} />
+            <MiniGoalWidget current={overview?.totalSolved || stats?.totalProblems || 0} target={100} />
             <Button
               onClick={() => setIsDrawerOpen(true)}
               size="lg"
@@ -165,13 +224,13 @@ export default function DashboardPage() {
             <>
               <KPICard
                 title="Total Problems"
-                value={stats?.totalProblems || 0}
-                subtitle="All time"
+                value={overview?.totalSolved || stats?.totalProblems || 0}
+                subtitle={`Synced ${overview?.syncedSolved || 0} + Manual ${overview?.manualSolved || 0}`}
                 icon={<Code2 size={24} />}
               />
               <KPICard
                 title="Total Sessions"
-                value={stats?.totalSessions || 0}
+                value={overview?.totalSessions || stats?.totalSessions || 0}
                 subtitle="Practice sessions"
                 icon={<Target size={24} />}
               />
@@ -183,7 +242,7 @@ export default function DashboardPage() {
               />
               <KPICard
                 title="Total Time"
-                value={`${Math.floor((stats?.totalTime || 0) / 60)}h`}
+                value={`${Math.floor((overview?.totalTimeMinutes || stats?.totalTime || 0) / 60)}h`}
                 subtitle="Practice time"
                 icon={<Clock size={24} />}
               />
@@ -207,38 +266,38 @@ export default function DashboardPage() {
               <div className="h-64 flex flex-col justify-center gap-4">
                 {loading ? (
                   <p className="text-[#a0a0a0] text-center">Loading...</p>
-                ) : stats ? (
+                ) : (overview || stats) ? (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <span className="text-green-500 text-sm font-medium">Easy</span>
-                      <span className="text-white font-bold">{stats.byDifficulty.easy}</span>
+                      <span className="text-white font-bold">{overview?.byDifficulty.easy || stats?.byDifficulty.easy || 0}</span>
                     </div>
                     <div className="w-full bg-[#242424] rounded-full h-3">
                       <div
                         className="bg-green-500 h-3 rounded-full transition-all duration-500"
-                        style={{ width: `${(stats.byDifficulty.easy / stats.totalProblems) * 100 || 0}%` }}
+                        style={{ width: `${(((overview?.byDifficulty.easy || stats?.byDifficulty.easy || 0) / (overview?.totalSolved || stats?.totalProblems || 1)) * 100) || 0}%` }}
                       />
                     </div>
 
                     <div className="flex items-center justify-between">
                       <span className="text-yellow-500 text-sm font-medium">Medium</span>
-                      <span className="text-white font-bold">{stats.byDifficulty.medium}</span>
+                      <span className="text-white font-bold">{overview?.byDifficulty.medium || stats?.byDifficulty.medium || 0}</span>
                     </div>
                     <div className="w-full bg-[#242424] rounded-full h-3">
                       <div
                         className="bg-yellow-500 h-3 rounded-full transition-all duration-500"
-                        style={{ width: `${(stats.byDifficulty.medium / stats.totalProblems) * 100 || 0}%` }}
+                        style={{ width: `${(((overview?.byDifficulty.medium || stats?.byDifficulty.medium || 0) / (overview?.totalSolved || stats?.totalProblems || 1)) * 100) || 0}%` }}
                       />
                     </div>
 
                     <div className="flex items-center justify-between">
                       <span className="text-red-500 text-sm font-medium">Hard</span>
-                      <span className="text-white font-bold">{stats.byDifficulty.hard}</span>
+                      <span className="text-white font-bold">{overview?.byDifficulty.hard || stats?.byDifficulty.hard || 0}</span>
                     </div>
                     <div className="w-full bg-[#242424] rounded-full h-3">
                       <div
                         className="bg-red-500 h-3 rounded-full transition-all duration-500"
-                        style={{ width: `${(stats.byDifficulty.hard / stats.totalProblems) * 100 || 0}%` }}
+                        style={{ width: `${(((overview?.byDifficulty.hard || stats?.byDifficulty.hard || 0) / (overview?.totalSolved || stats?.totalProblems || 1)) * 100) || 0}%` }}
                       />
                     </div>
                   </div>
@@ -317,14 +376,65 @@ export default function DashboardPage() {
 
 
 
+        {/* Unified Analytics */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <Card title="RATING TIMELINE" collapsible>
+            <UnifiedRatingTimelineChart timeline={ratingTimeline} />
+          </Card>
+          <Card title="PLATFORM COMPARISON" collapsible>
+            {platformComparison.length === 0 ? (
+              <p className="text-muted-foreground text-sm">No platform snapshots yet. Connect profiles and run sync.</p>
+            ) : (
+              <div className="space-y-3">
+                {platformComparison.map(item => (
+                  <div key={item.platform} className="border border-border rounded-lg p-3 bg-accent/10">
+                    <div className="flex items-center justify-between">
+                      <div className="flex items-center gap-2">
+                        <Trophy size={14} className="text-primary" />
+                        <p className="font-mono text-xs tracking-wider">{item.platform}</p>
+                      </div>
+                      <p className="text-sm font-semibold">{item.totalSolved} solved</p>
+                    </div>
+                    <div className="mt-2 flex items-center justify-between text-xs text-muted-foreground">
+                      <span>E:{item.easySolved} M:{item.mediumSolved} H:{item.hardSolved}</span>
+                      <span>Rating: {item.rating ?? '-'}</span>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </Card>
+        </div>
+
         {/* Analytics Section */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <Card title="ACTIVITY CALENDAR" collapsible>
             <StreakCalendar sessions={sessions} />
           </Card>
 
-          <Card title="WEEKLY INSIGHTS" collapsible>
-            <WeeklyInsights sessions={sessions} />
+          <Card title="WEEKLY INSIGHTS" collapsible headerAction={<BarChart3 size={14} className="text-muted-foreground" />}>
+            {trends ? (
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between border-b border-border pb-2">
+                  <span className="text-muted-foreground">Weekly Solved</span>
+                  <span className="font-semibold">{trends.weekly.problemsSolved}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-border pb-2">
+                  <span className="text-muted-foreground">Weekly Sessions</span>
+                  <span className="font-semibold">{trends.weekly.sessions}</span>
+                </div>
+                <div className="flex items-center justify-between border-b border-border pb-2">
+                  <span className="text-muted-foreground">Monthly Solved</span>
+                  <span className="font-semibold">{trends.monthly.problemsSolved}</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Strongest Platform</span>
+                  <span className="font-semibold">{overview?.strongestPlatform || 'N/A'}</span>
+                </div>
+              </div>
+            ) : (
+              <WeeklyInsights sessions={sessions} />
+            )}
           </Card>
         </div>
 
