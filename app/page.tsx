@@ -80,6 +80,32 @@ interface PerformanceTrends {
   monthly: { problemsSolved: number; timeSpentMinutes: number; sessions: number }
 }
 
+interface AdvancedInsights {
+  filters: {
+    range: '30d' | '90d' | '180d' | '365d'
+    platform: string
+    benchmark: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
+  }
+  metrics: {
+    consistencyScore: number
+    contestPracticeCorrelation: number
+    velocityPerWeek: number
+    plateauDetected: boolean
+    difficultyMix: {
+      easy: number
+      medium: number
+      hard: number
+    }
+  }
+  strengths: Array<{ topic: string; count: number }>
+  weaknesses: Array<{ topic: string; count: number }>
+  benchmark: {
+    targetVelocityPerWeek: number
+    currentVelocityPerWeek: number
+    onTrack: boolean
+  }
+}
+
 export default function DashboardPage() {
   const [isDrawerOpen, setIsDrawerOpen] = useState(false)
   const [sessions, setSessions] = useState<Session[]>([])
@@ -88,20 +114,21 @@ export default function DashboardPage() {
   const [ratingTimeline, setRatingTimeline] = useState<RatingPoint[]>([])
   const [platformComparison, setPlatformComparison] = useState<PlatformComparison[]>([])
   const [trends, setTrends] = useState<PerformanceTrends | null>(null)
+  const [advancedInsights, setAdvancedInsights] = useState<AdvancedInsights | null>(null)
+  const [rangeFilter, setRangeFilter] = useState<'30d' | '90d' | '180d' | '365d'>('30d')
+  const [platformFilter, setPlatformFilter] = useState<string>('ALL')
+  const [benchmarkFilter, setBenchmarkFilter] = useState<'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'>('INTERMEDIATE')
   const [loading, setLoading] = useState(true)
-
-  useEffect(() => {
-    fetchSessions()
-  }, [])
 
   const fetchSessions = async () => {
     try {
-      const [sessionsRes, overviewRes, timelineRes, comparisonRes, trendsRes] = await Promise.all([
+      const [sessionsRes, overviewRes, timelineRes, comparisonRes, trendsRes, advancedRes] = await Promise.all([
         fetch('/api/sessions'),
         fetch('/api/analytics/overview'),
         fetch('/api/analytics/rating-timeline'),
         fetch('/api/analytics/comparison'),
-        fetch('/api/analytics/trends')
+        fetch('/api/analytics/trends'),
+        fetch(`/api/analytics/advanced?range=${rangeFilter}&platform=${platformFilter}&benchmark=${benchmarkFilter}`)
       ])
 
       const sessionsData = await sessionsRes.json()
@@ -109,6 +136,7 @@ export default function DashboardPage() {
       const timelineData = await timelineRes.json()
       const comparisonData = await comparisonRes.json()
       const trendsData = await trendsRes.json()
+      const advancedData = await advancedRes.json()
 
       setSessions(sessionsData.sessions || [])
       setStats(sessionsData.stats || null)
@@ -116,12 +144,18 @@ export default function DashboardPage() {
       setRatingTimeline(timelineData.timeline || [])
       setPlatformComparison(comparisonData.comparison || [])
       setTrends(trendsData.trends || null)
+      setAdvancedInsights(advancedData.insights || null)
     } catch (error) {
       console.error('Error fetching sessions:', error)
     } finally {
       setLoading(false)
     }
   }
+
+  useEffect(() => {
+    fetchSessions()
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [rangeFilter, platformFilter, benchmarkFilter])
 
   const handleAddSession = async (formData: SessionFormData) => {
     try {
@@ -401,6 +435,106 @@ export default function DashboardPage() {
                     </div>
                   </div>
                 ))}
+              </div>
+            )}
+          </Card>
+        </div>
+
+        {/* Advanced Comparative Insights */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <Card
+            title="ADVANCED INSIGHTS"
+            className="lg:col-span-2"
+            headerAction={
+              <div className="flex items-center gap-2">
+                <select
+                  value={rangeFilter}
+                  onChange={(e) => setRangeFilter(e.target.value as '30d' | '90d' | '180d' | '365d')}
+                  className="bg-background border border-border text-xs rounded px-2 py-1"
+                >
+                  <option value="30d">30d</option>
+                  <option value="90d">90d</option>
+                  <option value="180d">180d</option>
+                  <option value="365d">365d</option>
+                </select>
+                <select
+                  value={platformFilter}
+                  onChange={(e) => setPlatformFilter(e.target.value)}
+                  className="bg-background border border-border text-xs rounded px-2 py-1"
+                >
+                  <option value="ALL">ALL</option>
+                  {platformComparison.map(item => (
+                    <option key={item.platform} value={item.platform}>{item.platform}</option>
+                  ))}
+                </select>
+                <select
+                  value={benchmarkFilter}
+                  onChange={(e) => setBenchmarkFilter(e.target.value as 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED')}
+                  className="bg-background border border-border text-xs rounded px-2 py-1"
+                >
+                  <option value="BEGINNER">BEGINNER</option>
+                  <option value="INTERMEDIATE">INTERMEDIATE</option>
+                  <option value="ADVANCED">ADVANCED</option>
+                </select>
+              </div>
+            }
+          >
+            {!advancedInsights ? (
+              <p className="text-sm text-muted-foreground">No advanced insights yet.</p>
+            ) : (
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">Consistency Score</p>
+                  <p className="text-xl font-bold">{advancedInsights.metrics.consistencyScore}/100</p>
+                </div>
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">Contest-Practice Correlation</p>
+                  <p className="text-xl font-bold">{advancedInsights.metrics.contestPracticeCorrelation}</p>
+                </div>
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">Velocity (Problems/Week)</p>
+                  <p className="text-xl font-bold">{advancedInsights.metrics.velocityPerWeek}</p>
+                </div>
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">Plateau Detection</p>
+                  <p className="text-xl font-bold">{advancedInsights.metrics.plateauDetected ? 'Plateau' : 'Growing'}</p>
+                </div>
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">Top Strengths</p>
+                  <p className="text-sm">{advancedInsights.strengths.map(x => `${x.topic} (${x.count})`).join(', ') || 'N/A'}</p>
+                </div>
+                <div className="border border-border rounded-lg p-3">
+                  <p className="text-xs text-muted-foreground">Weakness Areas</p>
+                  <p className="text-sm">{advancedInsights.weaknesses.map(x => `${x.topic} (${x.count})`).join(', ') || 'N/A'}</p>
+                </div>
+              </div>
+            )}
+          </Card>
+
+          <Card title="BENCHMARK VIEW">
+            {!advancedInsights ? (
+              <p className="text-sm text-muted-foreground">No benchmark data.</p>
+            ) : (
+              <div className="space-y-3 text-sm">
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Target Velocity</span>
+                  <span className="font-semibold">{advancedInsights.benchmark.targetVelocityPerWeek}/wk</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Current Velocity</span>
+                  <span className="font-semibold">{advancedInsights.benchmark.currentVelocityPerWeek}/wk</span>
+                </div>
+                <div className="flex items-center justify-between">
+                  <span className="text-muted-foreground">Benchmark Status</span>
+                  <span className={`font-semibold ${advancedInsights.benchmark.onTrack ? 'text-green-500' : 'text-yellow-500'}`}>
+                    {advancedInsights.benchmark.onTrack ? 'On Track' : 'Below Target'}
+                  </span>
+                </div>
+                <div className="border-t border-border pt-3">
+                  <p className="text-xs text-muted-foreground">
+                    Difficulty Mix: E {advancedInsights.metrics.difficultyMix.easy} / M {advancedInsights.metrics.difficultyMix.medium} / H {advancedInsights.metrics.difficultyMix.hard}
+                  </p>
+                </div>
               </div>
             )}
           </Card>

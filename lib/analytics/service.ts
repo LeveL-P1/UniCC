@@ -153,3 +153,140 @@ export async function getPlatformComparison(userId: string) {
     lastUpdatedAt: snapshot.capturedAt.toISOString()
   }))
 }
+
+export interface AdvancedInsightsOptions {
+  range?: '30d' | '90d' | '180d' | '365d'
+  platform?: Platform | 'ALL'
+  benchmark?: 'BEGINNER' | 'INTERMEDIATE' | 'ADVANCED'
+}
+
+function getRangeStart(range: AdvancedInsightsOptions['range']) {
+  const days = range === '365d' ? 365 : range === '180d' ? 180 : range === '90d' ? 90 : 30
+  const start = new Date()
+  start.setDate(start.getDate() - days)
+  start.setHours(0, 0, 0, 0)
+  return start
+}
+
+function pearsonCorrelation(xs: number[], ys: number[]) {
+  if (xs.length !== ys.length || xs.length < 2) return 0
+  const n = xs.length
+  const sumX = xs.reduce((a, b) => a + b, 0)
+  const sumY = ys.reduce((a, b) => a + b, 0)
+  const sumXY = xs.reduce((sum, x, i) => sum + x * ys[i], 0)
+  const sumX2 = xs.reduce((sum, x) => sum + x * x, 0)
+  const sumY2 = ys.reduce((sum, y) => sum + y * y, 0)
+  const numerator = n * sumXY - sumX * sumY
+  const denominator = Math.sqrt((n * sumX2 - sumX * sumX) * (n * sumY2 - sumY * sumY))
+  return denominator === 0 ? 0 : Number((numerator / denominator).toFixed(3))
+}
+
+export async function getAdvancedInsights(userId: string, options: AdvancedInsightsOptions = {}) {
+  const rangeStart = getRangeStart(options.range)
+  const benchmark = options.benchmark ?? 'INTERMEDIATE'
+  const platformFilter = options.platform && options.platform !== 'ALL' ? options.platform : undefined
+
+  const [sessions, contests, snapshots] = await Promise.all([
+    db.codingSession.findMany({
+      where: {
+        userId,
+        date: { gte: rangeStart },
+        ...(platformFilter ? { platform: platformFilter } : {})
+      },
+      orderBy: { date: 'asc' },
+      select: { date: true, problemsSolved: true, easy: true, medium: true, hard: true, topics: true }
+    }),
+    db.platformContestHistory.findMany({
+      where: {
+        userId,
+        contestDate: { gte: rangeStart },
+        ...(platformFilter ? { platform: platformFilter } : {})
+      },
+      orderBy: { contestDate: 'asc' },
+      select: { contestDate: true, ratingDelta: true, problemsSolved: true, platform: true }
+    }),
+    db.platformSolvedSnapshot.findMany({
+      where: {
+        userId,
+        capturedAt: { gte: rangeStart },
+        ...(platformFilter ? { platform: platformFilter } : {})
+      },
+      orderBy: { capturedAt: 'asc' },
+      select: { capturedAt: true, totalSolved: true, platform: true }
+    })
+  ])
+
+  const platformSet = new Set<string>()
+  ;[...sessions, ...contests, ...snapshots].forEach(item => {
+    if ('platform' in item) platformSet.add(String(item.platform))
+  })
+  const activePlatforms = platformSet.size
+  const consistencyScore = Math.max(0, Math.min(100, 100 - Math.max(0, activePlatforms - 1) * 12))
+
+  const practiceByWeek = new Map<string, number>()
+  sessions.forEach(s => {
+    const weekKey = `${s.date.getUTCFullYear()}-${Math.ceil((s.date.getUTCDate() + 6 - s.date.getUTCDay()) / 7)}`
+    practiceByWeek.set(weekKey, (practiceByWeek.get(weekKey) ?? 0) + s.problemsSolved)
+  })
+  const contestByWeek = new Map<string, number>()
+  contests.forEach(c => {
+    const weekKey = `${c.contestDate.getUTCFullYear()}-${Math.ceil((c.contestDate.getUTCDate() + 6 - c.contestDate.getUTCDay()) / 7)}`
+    contestByWeek.set(weekKey, (contestByWeek.get(weekKey) ?? 0) + (c.problemsSolved ?? 0))
+  })
+  const allWeeks = [...new Set([...practiceByWeek.keys(), ...contestByWeek.keys()])]
+  const practiceSeries = allWeeks.map(w => practiceByWeek.get(w) ?? 0)
+  const contestSeries = allWeeks.map(w => contestByWeek.get(w) ?? 0)
+  const contestPracticeCorrelation = pearsonCorrelation(practiceSeries, contestSeries)
+
+  const snapshotGrowth = snapshots.length > 1
+    ? snapshots[snapshots.length - 1].totalSolved - snapshots[0].totalSolved
+    : sessions.reduce((sum, s) => sum + s.problemsSolved, 0)
+  const velocityPerWeek = Number((snapshotGrowth / Math.max(1, Math.ceil((new Date().getTime() - rangeStart.getTime()) / (1000 * 60 * 60 * 24 * 7)))).toFixed(2))
+  const latestThree = snapshots.slice(-3).map(s => s.totalSolved)
+  const plateauDetected = latestThree.length === 3 && latestThree[2] - latestThree[0] <= 2
+
+  const topicMap = new Map<string, number>()
+  sessions.forEach(s => s.topics.forEach(topic => {
+    const normalized = topic.trim().toLowerCase()
+    if (!normalized) return
+    topicMap.set(normalized, (topicMap.get(normalized) ?? 0) + 1)
+  }))
+  const sortedTopics = [...topicMap.entries()].sort((a, b) => b[1] - a[1])
+  const strengths = sortedTopics.slice(0, 3).map(([topic, count]) => ({ topic, count }))
+  const weaknesses = sortedTopics.slice(-3).reverse().map(([topic, count]) => ({ topic, count }))
+
+  const totalDifficulty = sessions.reduce(
+    (acc, s) => {
+      acc.easy += s.easy
+      acc.medium += s.medium
+      acc.hard += s.hard
+      return acc
+    },
+    { easy: 0, medium: 0, hard: 0 }
+  )
+
+  const benchmarkVelocity =
+    benchmark === 'ADVANCED' ? 20 : benchmark === 'BEGINNER' ? 6 : 12
+
+  return {
+    filters: {
+      range: options.range ?? '30d',
+      platform: options.platform ?? 'ALL',
+      benchmark
+    },
+    metrics: {
+      consistencyScore,
+      contestPracticeCorrelation,
+      velocityPerWeek,
+      plateauDetected,
+      difficultyMix: totalDifficulty
+    },
+    strengths,
+    weaknesses,
+    benchmark: {
+      targetVelocityPerWeek: benchmarkVelocity,
+      currentVelocityPerWeek: velocityPerWeek,
+      onTrack: velocityPerWeek >= benchmarkVelocity
+    }
+  }
+}
