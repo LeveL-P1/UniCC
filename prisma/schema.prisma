@@ -22,6 +22,10 @@ model User {
   updatedAt       DateTime         @updatedAt
   codingSessions  CodingSession[]
   platformProfiles PlatformProfile[]
+  unifiedMetricSnapshots UnifiedMetricSnapshot[]
+  platformRatingHistory PlatformRatingHistory[]
+  platformSolvedSnapshots PlatformSolvedSnapshot[]
+  platformContestHistory PlatformContestHistory[]
 }
 
 model CodingSession {
@@ -50,15 +54,106 @@ model PlatformProfile {
   userId        String
   platform      Platform
   handle        String
+  profileUrl    String?
+  syncStatus    SyncStatus @default(IDLE)
+  lastSyncStartedAt DateTime?
   lastSyncedAt  DateTime?
+  lastSuccessAt DateTime?
+  lastError     String?
+  lastErrorCode String?
+  rawSnapshot   Json?
   rawStatsJson  String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   
   user          User      @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ratingHistory PlatformRatingHistory[]
+  solvedSnapshots PlatformSolvedSnapshot[]
+  contestHistory PlatformContestHistory[]
   
   @@unique([userId, platform])
   @@index([userId])
+}
+
+model PlatformRatingHistory {
+  id                String    @id @default(cuid())
+  userId            String
+  platformProfileId String
+  platform          Platform
+  eventAt           DateTime
+  rating            Int?
+  rank              String?
+  contestName       String?
+  delta             Int?
+  createdAt         DateTime @default(now())
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platformProfile   PlatformProfile @relation(fields: [platformProfileId], references: [id], onDelete: Cascade)
+
+  @@index([userId, platform, eventAt])
+  @@unique([platformProfileId, eventAt, contestName])
+}
+
+model PlatformSolvedSnapshot {
+  id                String    @id @default(cuid())
+  userId            String
+  platformProfileId String
+  platform          Platform
+  capturedAt        DateTime
+  totalSolved       Int       @default(0)
+  easySolved        Int?
+  mediumSolved      Int?
+  hardSolved        Int?
+  byTag             Json?
+  createdAt         DateTime @default(now())
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platformProfile   PlatformProfile @relation(fields: [platformProfileId], references: [id], onDelete: Cascade)
+
+  @@index([userId, platform, capturedAt])
+  @@unique([platformProfileId, capturedAt])
+}
+
+model PlatformContestHistory {
+  id                String    @id @default(cuid())
+  userId            String
+  platformProfileId String
+  platform          Platform
+  contestId         String?
+  contestName       String
+  contestDate       DateTime
+  rank              Int?
+  ratingBefore      Int?
+  ratingAfter       Int?
+  ratingDelta       Int?
+  problemsSolved    Int?
+  score             Float?
+  createdAt         DateTime @default(now())
+
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  platformProfile   PlatformProfile @relation(fields: [platformProfileId], references: [id], onDelete: Cascade)
+
+  @@index([userId, platform, contestDate])
+  @@unique([platformProfileId, contestDate, contestName])
+}
+
+model UnifiedMetricSnapshot {
+  id                    String    @id @default(cuid())
+  userId                String
+  capturedAt            DateTime
+  totalSolved           Int       @default(0)
+  easySolved            Int       @default(0)
+  mediumSolved          Int       @default(0)
+  hardSolved            Int       @default(0)
+  strongestPlatform     Platform?
+  averageRating         Float?
+  platformBreakdown     Json?
+  createdAt             DateTime @default(now())
+
+  user                  User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId, capturedAt])
+  @@unique([userId, capturedAt])
 }
 
 enum Platform {
@@ -69,4 +164,11 @@ enum Platform {
   HACKERRANK
   ATCODER
   OTHER
+}
+
+enum SyncStatus {
+  IDLE
+  SYNCING
+  SUCCESS
+  ERROR
 }
