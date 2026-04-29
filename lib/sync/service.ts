@@ -1,7 +1,8 @@
-import { Platform, Prisma, SyncStatus } from '@prisma/client'
+import { Platform, Prisma, SyncSource, SyncStatus } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 import { getAdapter } from '@/lib/integrations'
 import { AdapterError } from '@/lib/integrations/base'
+import { invalidateCache } from '@/lib/cache/memoryCache'
 
 function parseError(error: unknown): { code: string; message: string } {
   if (error instanceof AdapterError) {
@@ -13,7 +14,11 @@ function parseError(error: unknown): { code: string; message: string } {
   return { code: 'TEMP_FAILURE', message: 'Unknown sync failure' }
 }
 
-export async function syncPlatformProfile(userId: string, platform: Platform) {
+interface SyncOptions {
+  source?: SyncSource
+}
+
+export async function syncPlatformProfile(userId: string, platform: Platform, options: SyncOptions = {}) {
   const profile = await prisma.platformProfile.findUnique({
     where: {
       userId_platform: { userId, platform }
@@ -23,6 +28,19 @@ export async function syncPlatformProfile(userId: string, platform: Platform) {
   if (!profile) {
     throw new Error(`No platform profile connected for ${platform}`)
   }
+
+  const startedAt = new Date()
+  const source = options.source ?? SyncSource.MANUAL
+  const log = await prisma.syncJobLog.create({
+    data: {
+      userId,
+      platformProfileId: profile.id,
+      platform,
+      source,
+      status: SyncStatus.SYNCING,
+      startedAt
+    }
+  })
 
   await prisma.platformProfile.update({
     where: { id: profile.id },
@@ -140,6 +158,16 @@ export async function syncPlatformProfile(userId: string, platform: Platform) {
     })
 
     await refreshUnifiedSnapshot(userId, capturedAt)
+    invalidateCache(`analytics:${userId}:`)
+    await prisma.syncJobLog.update({
+      where: { id: log.id },
+      data: {
+        status: SyncStatus.SUCCESS,
+        finishedAt: new Date(),
+        durationMs: new Date().getTime() - startedAt.getTime(),
+        message: `Sync successful for ${platform}`
+      }
+    })
     return { platform, success: true as const }
   } catch (error) {
     const parsed = parseError(error)
@@ -150,6 +178,16 @@ export async function syncPlatformProfile(userId: string, platform: Platform) {
         lastError: parsed.message,
         lastErrorCode: parsed.code,
         lastSyncedAt: new Date()
+      }
+    })
+    await prisma.syncJobLog.update({
+      where: { id: log.id },
+      data: {
+        status: SyncStatus.ERROR,
+        errorCode: parsed.code,
+        message: parsed.message,
+        finishedAt: new Date(),
+        durationMs: new Date().getTime() - startedAt.getTime()
       }
     })
     return { platform, success: false as const, error: parsed }
