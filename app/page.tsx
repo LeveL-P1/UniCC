@@ -7,7 +7,7 @@ import { Card, KPICard } from '@/components/ui/Card'
 import { Drawer } from '@/components/ui/Drawer'
 import { SessionForm, SessionFormData } from '@/components/sessions/SessionsForm'
 import { Button } from '@/components/ui/button'
-import { Code2, Target, Flame, Clock, Plus, FileText, Trophy, BarChart3 } from 'lucide-react'
+import { Code2, Target, Flame, Clock, Plus, FileText, Trophy, BarChart3, CalendarCheck2, Gauge, TrendingUp } from 'lucide-react'
 import { ProblemsPerDayChart } from '@/components/charts/ProblemsPerDayChart'
 import { TopicsChart } from '@/components/charts/TopicsCharts'
 import { StreakCalendar } from '@/components/charts/StreakCalender'
@@ -205,6 +205,13 @@ export default function DashboardPage() {
   }
 
   const streak = calculateStreak()
+  const totalSolved = overview?.totalSolved || stats?.totalProblems || 0
+  const totalSessions = overview?.totalSessions || stats?.totalSessions || 0
+  const totalHours = Math.floor((overview?.totalTimeMinutes || stats?.totalTime || 0) / 60)
+  const weeklyGoalTarget = 120
+  const weeklyGoalPercent = Math.min(Math.round((totalSolved / weeklyGoalTarget) * 100), 100)
+  const activeDays = overview?.activeDays || 0
+  const consistencyLabel = activeDays >= 20 ? 'High' : activeDays >= 10 ? 'Moderate' : 'Early'
 
   return (
     <DashboardLayout>
@@ -218,12 +225,12 @@ export default function DashboardPage() {
           className="flex flex-col xl:flex-row xl:items-end justify-between gap-6"
         >
           <div className="space-y-4">
-            <div>
+            <div className="space-y-2">
               <h1 className="text-4xl font-outfit font-bold tracking-tight text-foreground">
-                DASHBOARD
+                V1 DASHBOARD
               </h1>
-              <p className="text-sm text-muted-foreground mt-1 font-mono uppercase tracking-widest">
-                {/* System Overview & Analytics */}
+              <p className="text-xs md:text-sm text-muted-foreground font-mono uppercase tracking-widest">
+                Temporary command center built from current project progress
               </p>
             </div>
             <div className="flex flex-wrap items-center gap-4">
@@ -245,6 +252,47 @@ export default function DashboardPage() {
           </div>
         </motion.div>
 
+        {/* V1 Readiness Snapshot */}
+        <Card title="V1 READINESS SNAPSHOT">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+            <div className="border border-border rounded-lg p-4 bg-accent/10">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs uppercase font-mono tracking-wider text-muted-foreground">Weekly Goal</p>
+                <Gauge size={14} className="text-primary" />
+              </div>
+              <p className="text-2xl font-bold font-mono">{weeklyGoalPercent}%</p>
+              <p className="text-xs text-muted-foreground mt-1">{totalSolved}/{weeklyGoalTarget} solved target</p>
+              <div className="h-2 w-full bg-secondary rounded-full mt-3 overflow-hidden">
+                <div className="h-full bg-primary rounded-full" style={{ width: `${weeklyGoalPercent}%` }} />
+              </div>
+            </div>
+
+            <div className="border border-border rounded-lg p-4 bg-accent/10">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs uppercase font-mono tracking-wider text-muted-foreground">Consistency</p>
+                <CalendarCheck2 size={14} className="text-primary" />
+              </div>
+              <p className="text-2xl font-bold font-mono">{activeDays}</p>
+              <p className="text-xs text-muted-foreground mt-1">active days in tracked range</p>
+              <p className="text-xs mt-3">
+                Signal: <span className="text-foreground font-semibold">{consistencyLabel}</span>
+              </p>
+            </div>
+
+            <div className="border border-border rounded-lg p-4 bg-accent/10">
+              <div className="flex items-center justify-between mb-2">
+                <p className="text-xs uppercase font-mono tracking-wider text-muted-foreground">Momentum</p>
+                <TrendingUp size={14} className="text-primary" />
+              </div>
+              <p className="text-2xl font-bold font-mono">{overview?.averageProblemsPerDay || 0}</p>
+              <p className="text-xs text-muted-foreground mt-1">avg problems solved per active day</p>
+              <p className="text-xs mt-3">
+                Strongest platform: <span className="text-foreground font-semibold">{overview?.strongestPlatform || 'N/A'}</span>
+              </p>
+            </div>
+          </div>
+        </Card>
+
         {/* KPI Cards Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
           {loading ? (
@@ -258,13 +306,13 @@ export default function DashboardPage() {
             <>
               <KPICard
                 title="Total Problems"
-                value={overview?.totalSolved || stats?.totalProblems || 0}
+                value={totalSolved}
                 subtitle={`Synced ${overview?.syncedSolved || 0} + Manual ${overview?.manualSolved || 0}`}
                 icon={<Code2 size={24} />}
               />
               <KPICard
                 title="Total Sessions"
-                value={overview?.totalSessions || stats?.totalSessions || 0}
+                value={totalSessions}
                 subtitle="Practice sessions"
                 icon={<Target size={24} />}
               />
@@ -276,7 +324,7 @@ export default function DashboardPage() {
               />
               <KPICard
                 title="Total Time"
-                value={`${Math.floor((overview?.totalTimeMinutes || stats?.totalTime || 0) / 60)}h`}
+                value={`${totalHours}h`}
                 subtitle="Practice time"
                 icon={<Clock size={24} />}
               />
