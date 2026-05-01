@@ -38,7 +38,7 @@ export default function RootLayout({
 }>) {
   return (
     <ClerkProvider>
-      <html lang="en">
+      <html lang="en" className="bg-background">
         <body
           className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} font-sans antialiased`}
         >
