@@ -1,37 +1,100 @@
 "use client";
 
 import Link from "next/link";
-import { useScrollHeader } from "@/hooks/useScrollHeader";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { useState } from "react";
+import { GooeyInput } from "@/components/ui/gooey-input";
+import { useRouter } from "next/navigation";
+import {
+  Navbar,
+  NavBody,
+  NavItems,
+  MobileNav,
+  NavbarLogo,
+  NavbarButton,
+  MobileNavHeader,
+  MobileNavToggle,
+  MobileNavMenu,
+} from "@/components/ui/resizable-navbar";
 
 export function PublicHeader() {
-  const isScrolled = useScrollHeader();
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const router = useRouter();
+
+  const navItems = [
+    {
+      name: "Features",
+      link: "#features",
+    },
+    {
+      name: "Pricing",
+      link: "#pricing",
+    },
+    {
+      name: "Contact",
+      link: "#contact",
+    },
+  ];
 
   return (
-    <header
-      className={cn(
-        "sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur",
-        isScrolled ? "py-2" : "py-4"
-      )}
-    >
-      <div className="mx-auto flex w-full max-w-6xl items-center gap-3 px-4 md:px-6">
-        <Link href="/" className="text-lg font-semibold tracking-tight">
-          UniCC
-        </Link>
-        <div className="hidden flex-1 sm:block">
-          <Input aria-label="Search profiles" placeholder="Search username or handle..." className="h-9" />
+    <Navbar>
+      {/* Desktop Navigation */}
+      <NavBody>
+        <NavbarLogo />
+        <NavItems items={navItems} />
+        <div className="flex items-center gap-4">
+          <NavbarButton variant="secondary" onClick={() => router.push('/sign-in')}>Sign In</NavbarButton>
+          <NavbarButton variant="primary" onClick={() => router.push('/sign-up')}>Create Profile</NavbarButton>
         </div>
-        <div className="ml-auto flex items-center gap-2">
-          <Button asChild variant="ghost" size="sm">
-            <Link href="/sign-in">Sign In</Link>
-          </Button>
-          <Button asChild size="sm">
-            <Link href="/sign-up">Create Profile</Link>
-          </Button>
-        </div>
-      </div>
-    </header>
+      </NavBody>
+
+      {/* Mobile Navigation */}
+      <MobileNav>
+        <MobileNavHeader>
+          <NavbarLogo />
+          <MobileNavToggle
+            isOpen={isMobileMenuOpen}
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          />
+        </MobileNavHeader>
+
+        <MobileNavMenu
+          isOpen={isMobileMenuOpen}
+          onClose={() => setIsMobileMenuOpen(false)}
+        >
+          {navItems.map((item, idx) => (
+            <a
+              key={`mobile-link-${idx}`}
+              href={item.link}
+              onClick={() => setIsMobileMenuOpen(false)}
+              className="relative text-neutral-600 dark:text-neutral-300"
+            >
+              <span className="block">{item.name}</span>
+            </a>
+          ))}
+          <div className="flex w-full flex-col gap-4">
+            <NavbarButton
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                router.push('/sign-in');
+              }}
+              variant="secondary"
+              className="w-full"
+            >
+              Sign In
+            </NavbarButton>
+            <NavbarButton
+              onClick={() => {
+                setIsMobileMenuOpen(false);
+                router.push('/sign-up');
+              }}
+              variant="primary"
+              className="w-full"
+            >
+              Create Profile
+            </NavbarButton>
+          </div>
+        </MobileNavMenu>
+      </MobileNav>
+    </Navbar>
   );
 }
