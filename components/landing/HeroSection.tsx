@@ -4,10 +4,9 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
-import { LampContainer } from "@/components/ui/lamp";
 import { motion } from "framer-motion";
 import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
-import { GooeyInput } from "@/components/ui/gooey-input";
+import { Input } from "@/components/ui/input";
 import { PLATFORM_ORDER, PLATFORMS } from "@/lib/constants";
 
 export function HeroSection() {
@@ -24,11 +23,9 @@ export function HeroSection() {
     <div className="w-full relative flex items-center justify-center pt-8 pb-16">
       {/* Content */}
       <div className="relative z-10 w-full max-w-6xl mx-auto px-4 md:px-6 flex flex-col items-center">
-        <LampContainer className="min-h-min mb-8">
-          <h1 className="mt-8 bg-gradient-to-br from-slate-300 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl max-w-4xl">
-            All your competitive programming stats in one place
-          </h1>
-        </LampContainer>
+        <h1 className="mt-8 mb-8 bg-gradient-to-br from-slate-300 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl max-w-4xl">
+          All your competitive programming stats in one place
+        </h1>
         
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
@@ -46,12 +43,33 @@ export function HeroSection() {
           onSubmit={onSubmit} 
           className="w-full flex justify-center mb-12 relative z-20"
         >
-          <GooeyInput 
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="Search username or handle..." 
-            className="w-full max-w-md mx-auto"
-          />
+          <div className="relative flex items-center justify-center gap-[5px] p-[10px_15px] rounded-[22px] max-w-[400px] w-full bg-white/10 backdrop-blur-md transition-transform duration-400 perspective-[500px]">
+            {/* Shadow Input */}
+            <div 
+              className="absolute w-full h-full left-0 bottom-0 -z-10 blur-[30px] rounded-[20px] bg-[#999cff]"
+              style={{
+                backgroundImage: `
+                  radial-gradient(at 85% 51%, hsla(60,60%,61%,1) 0px, transparent 50%),
+                  radial-gradient(at 74% 68%, hsla(235,69%,77%,1) 0px, transparent 50%),
+                  radial-gradient(at 64% 79%, hsla(284,72%,73%,1) 0px, transparent 50%),
+                  radial-gradient(at 75% 16%, hsla(283,60%,72%,1) 0px, transparent 50%),
+                  radial-gradient(at 90% 65%, hsla(153,70%,64%,1) 0px, transparent 50%),
+                  radial-gradient(at 91% 83%, hsla(283,74%,69%,1) 0px, transparent 50%),
+                  radial-gradient(at 72% 91%, hsla(213,75%,75%,1) 0px, transparent 50%)
+                `
+              }}
+            />
+            
+            <input 
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              placeholder="Search username or handle..." 
+              className="w-full rounded-[20px] outline-none border-none p-[8px] relative bg-transparent text-white placeholder:text-white/80"
+            />
+            <button type="submit" className="cursor-pointer border-none bg-transparent flex justify-center items-center rounded-[12px] p-[5px] transition-all duration-400 hover:bg-white/40 text-white">
+              <Search className="h-5 w-5" />
+            </button>
+          </div>
         </motion.form>
         
         <motion.div 

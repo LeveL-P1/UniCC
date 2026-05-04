@@ -2,7 +2,6 @@
 
 import Link from "next/link";
 import { useState } from "react";
-import { GooeyInput } from "@/components/ui/gooey-input";
 import { useRouter } from "next/navigation";
 import {
   Navbar,

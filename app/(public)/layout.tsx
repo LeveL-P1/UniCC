@@ -1,27 +1,38 @@
 import type { ReactNode } from "react";
 import { PublicHeader } from "@/components/layout/PublicHeader";
+import Grainient from "@/components/Grainient";
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
     <div className="min-h-screen bg-black relative pt-24 text-white">
       {/* Cosmic Nebula Background */}
-      <div
-        className="fixed inset-0 z-0 opacity-50"
-        style={{
-          background: `
-            radial-gradient(ellipse 110% 70% at 25% 80%, rgba(147, 51, 234, 0.12), transparent 55%),
-            radial-gradient(ellipse 130% 60% at 75% 15%, rgba(59, 130, 246, 0.10), transparent 65%),
-            radial-gradient(ellipse 80% 90% at 20% 30%, rgba(236, 72, 153, 0.14), transparent 50%),
-            radial-gradient(ellipse 100% 40% at 60% 70%, rgba(16, 185, 129, 0.08), transparent 45%),
-            #000000
-          `,
-        }}
-      />
-      {/* Grain effect */}
-      <div 
-        className="fixed inset-0 z-0 opacity-[0.03]"
-        style={{ backgroundImage: 'url("https://framerusercontent.com/images/rR6HYXBrMmX4cTwEXZGUQAP5I.svg")' }}
-      />
+      <div className="fixed inset-0 z-0 pointer-events-none">
+        <Grainient
+          color1="#2d232d"
+          color2="#362965"
+          color3="#a76fdd"
+          timeSpeed={2.5}
+          colorBalance={0}
+          warpStrength={1}
+          warpFrequency={4.7}
+          warpSpeed={2.5}
+          warpAmplitude={50}
+          blendAngle={0}
+          blendSoftness={0.21}
+          rotationAmount={60}
+          noiseScale={2}
+          grainAmount={0.1}
+          grainScale={1.5}
+          grainAnimated={false}
+          contrast={1.3}
+          gamma={1}
+          saturation={0.8}
+          centerX={0}
+          centerY={0}
+          zoom={0.5}
+          className="w-full h-full"
+        />
+      </div>
       
       <div className="relative z-10">
         <PublicHeader />
