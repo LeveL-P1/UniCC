@@ -46,7 +46,7 @@ export function HeroSection() {
           <div className="relative flex items-center justify-center gap-[5px] p-[10px_15px] rounded-[22px] max-w-[400px] w-full bg-white/10 backdrop-blur-md transition-transform duration-400 perspective-[500px]">
             {/* Shadow Input */}
             <div 
-              className="absolute w-full h-full left-0 bottom-0 -z-10 blur-[30px] rounded-[20px] bg-[#999cff]"
+              className="absolute w-full h-full left-0 bottom-0 -z-10 blur-[30px] rounded-[20px] bg-[#8185e4]"
               style={{
                 backgroundImage: `
                   radial-gradient(at 85% 51%, hsla(60,60%,61%,1) 0px, transparent 50%),
