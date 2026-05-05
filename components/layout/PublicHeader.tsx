@@ -86,7 +86,7 @@ export function PublicHeader() {
                 setIsMobileMenuOpen(false);
                 router.push('/sign-up');
               }}
-              variant="primary"
+              variant="secondary"
               className="w-full"
             >
               Create Profile

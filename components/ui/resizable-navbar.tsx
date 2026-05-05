@@ -88,7 +88,7 @@ export const NavBody = ({ children, className, visible }: NavBodyProps) => {
         minWidth: visible ? "700px" : "auto",
       }}
       className={cn(
-        "relative z-[60] mx-auto hidden w-full max-w-6xl flex-row items-center justify-between self-start rounded-full bg-gradient-to-b from-transparent to-[#1e1b4b]/70  px-4 py-2 md:flex shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-lg",
+        "relative z-[60] mx-auto hidden w-full max-w-6xl flex-row items-center justify-between self-start rounded-full bg-gradient-to-b from-transparent to-[#281c65]/70  px-4 py-2 md:flex shadow-[0_8px_30px_rgba(0,0,0,0.5)] backdrop-blur-lg",
         className,
       )}
     >
@@ -104,7 +104,7 @@ export const NavItems = ({ items, className, onItemClick }: NavItemsProps) => {
     <motion.div
       onMouseLeave={() => setHovered(null)}
       className={cn(
-        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-medium transition duration-200 md:flex md:space-x-2",
+        "absolute inset-0 hidden flex-1 flex-row items-center justify-center space-x-2 text-sm font-extrabold transition duration-200 md:flex md:space-x-2",
         className,
       )}
     >
@@ -218,7 +218,7 @@ export const NavbarLogo = () => {
       href="/"
       className="relative z-20 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-white"
     >
-      <span className="font-bold text-xl tracking-tight text-white">UniCC</span>
+      <span className="font-bold text-xl tracking-tight text-white ">UniCC</span>
     </a>
   );
 };

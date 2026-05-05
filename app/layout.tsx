@@ -1,24 +1,8 @@
 import type { Metadata } from "next";
 import { ClerkProvider } from "@clerk/nextjs";
-import { Inter, Outfit, JetBrains_Mono } from "next/font/google";
 import { Toaster } from 'react-hot-toast';
 import "./globals.css";
 import { SpeedInsights } from "@vercel/speed-insights/next";
-
-const inter = Inter({
-  variable: "--font-inter",
-  subsets: ["latin"],
-});
-
-const outfit = Outfit({
-  variable: "--font-outfit",
-  subsets: ["latin"],
-});
-
-const jetbrainsMono = JetBrains_Mono({
-  variable: "--font-mono",
-  subsets: ["latin"],
-});
 
 export const metadata: Metadata = {
   title: "UNICC Dashboard - Track Your Coding Practice",
@@ -39,9 +23,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en">
-        <body
-          className={`${inter.variable} ${outfit.variable} ${jetbrainsMono.variable} font-sans antialiased`}
-        >
+        <body className="antialiased">
           {children}
           <SpeedInsights />
           <Toaster

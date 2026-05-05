@@ -20,18 +20,18 @@ export function HeroSection() {
   };
 
   return (
-    <div className="w-full relative flex items-center justify-center pt-8 pb-16">
+    <div className="w-full relative flex items-center justify-center pt-8 pb-32">
       {/* Content */}
       <div className="relative z-10 w-full max-w-6xl mx-auto px-4 md:px-6 flex flex-col items-center">
-        <h1 className="mt-8 mb-8 bg-gradient-to-br from-slate-300 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight text-transparent md:text-7xl max-w-4xl">
-          All your competitive programming stats in one place
+        <h1 className="mt-8 mb-8 bg-gradient-to-br from-slate-300 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight md:text-7xl max-w-4xl">
+          All your competitive programming stats — unified
         </h1>
         
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ delay: 0.6, duration: 0.5 }}
-          className="text-center text-lg text-neutral-400 mb-10 max-w-2xl"
+          className="text-center text-xl text-neutral-400 mb-10 max-w-2xl"
         >
           Search profiles from {showcasePlatforms.join(", ")} and more.
         </motion.p>
