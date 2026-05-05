@@ -7,7 +7,7 @@ export function LandingCTA() {
   const router = useRouter();
 
   return (
-    <SectionCard className="my-16 text-center py-16 bg-black/20 backdrop-blur-sm border border-white/5 shadow-2xl">
+    <SectionCard className="my-12 text-center py-16 bg-black/20 backdrop-blur-sm border border-white/5 shadow-2xl">
       <h2 className="text-3xl md:text-4xl font-semibold mb-4 bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
         Ready to share your CP journey?
       </h2>

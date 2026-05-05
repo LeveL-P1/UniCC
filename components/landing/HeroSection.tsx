@@ -20,7 +20,7 @@ export function HeroSection() {
   };
 
   return (
-    <div className="w-full relative flex items-center justify-center pt-8 pb-32">
+    <div className="w-full relative flex items-center justify-center pt-2 pb-32">
       {/* Content */}
       <div className="relative z-10 w-full max-w-6xl mx-auto px-4 md:px-6 flex flex-col items-center">
         <h1 className="mt-8 mb-8 bg-gradient-to-br from-slate-300 to-slate-500 py-4 bg-clip-text text-center text-4xl font-medium tracking-tight md:text-7xl max-w-4xl">

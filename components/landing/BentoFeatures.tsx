@@ -28,7 +28,7 @@ const BentoCard = ({
 
 export function BentoFeatures() {
   return (
-    <section className="py-24 max-w-7xl mx-auto px-4 relative z-20">
+    <section className="border-t border-white/30 py-24 max-w-7xl mx-auto px-4 relative z-20">
       {/* Header Section */}
       <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-8 px-4">
         <h2 className="text-4xl md:text-5xl font-bold text-white max-w-2xl leading-tight tracking-tight">
