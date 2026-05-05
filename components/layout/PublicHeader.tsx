@@ -20,15 +20,7 @@ export function PublicHeader() {
   const router = useRouter();
 
   const navItems = [
-    {
-      name: "Features",
-      link: "#features",
-    },
-    {
-      name: "Pricing",
-      link: "#pricing",
-    },
-    {
+      {
       name: "Contact",
       link: "#contact",
     },

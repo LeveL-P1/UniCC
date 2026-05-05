@@ -39,6 +39,7 @@ export default function PublicLayout({ children }: { children: ReactNode }) {
         {children}
         <footer className="border-t border-white/10 py-8 mt-12 text-center text-sm text-neutral-400">
           Built for competitive programmers.
+          <span className="font-medium text-white underline px-2">Built by <a href="https://github.com/LeveL-P1">P1</a>.  </span>  
         </footer>
       </div>
     </div>

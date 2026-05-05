@@ -236,12 +236,12 @@ export const NavbarButton = ({
       className={cn(
         "rounded-full px-4 py-2 text-sm font-medium transition-colors relative z-20 cursor-pointer shadow-sm",
         variant === "primary"
-          ? "bg-white text-black hover:bg-neutral-200"
+          ? "bg-white/95 text-black font-extralight hover:bg-[#9E9E9E]"
           : "bg-transparent text-white hover:bg-white/20",
         className
       )}
       {...props}
-    >
+    > 
       {children}
     </button>
   );
