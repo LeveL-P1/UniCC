@@ -5,7 +5,7 @@ import { useMemo, useState } from "react";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { motion } from "framer-motion";
-import { HoverBorderGradient } from "@/components/ui/hover-border-gradient";
+import { CyberButton } from "@/components/ui/cyber-button";
 import { Input } from "@/components/ui/input";
 import { PLATFORM_ORDER, PLATFORMS } from "@/lib/constants";
 
@@ -49,13 +49,13 @@ export function HeroSection() {
               className="absolute w-full h-full left-0 bottom-0 -z-10 blur-[30px] rounded-[20px] bg-[#8185e4]"
               style={{
                 backgroundImage: `
-                  radial-gradient(at 85% 51%, hsla(60,60%,61%,1) 0px, transparent 50%),
-                  radial-gradient(at 74% 68%, hsla(235,69%,77%,1) 0px, transparent 50%),
-                  radial-gradient(at 64% 79%, hsla(284,72%,73%,1) 0px, transparent 50%),
-                  radial-gradient(at 75% 16%, hsla(283,60%,72%,1) 0px, transparent 50%),
-                  radial-gradient(at 90% 65%, hsla(153,70%,64%,1) 0px, transparent 50%),
-                  radial-gradient(at 91% 83%, hsla(283,74%,69%,1) 0px, transparent 50%),
-                  radial-gradient(at 72% 91%, hsla(213,75%,75%,1) 0px, transparent 50%)
+                  radial-gradient(at 85% 51%, hsla(60,60%,30%,1) 0px, transparent 50%),
+                  radial-gradient(at 74% 68%, hsla(235,69%,307%,1) 0px, transparent 50%),
+                  radial-gradient(at 64% 79%, hsla(284,72%,303%,1) 0px, transparent 50%),
+                  radial-gradient(at 75% 16%, hsla(283,60%,30%,1) 0px, transparent 50%),
+                  radial-gradient(at 90% 65%, hsla(153,70%,30%,1) 0px, transparent 50%),
+                  radial-gradient(at 91% 83%, hsla(283,74%,30%,1) 0px, transparent 50%),
+                  radial-gradient(at 72% 91%, hsla(213,75%,30%,1) 0px, transparent 50%)
                 `
               }}
             />
@@ -64,9 +64,9 @@ export function HeroSection() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               placeholder="Search username or handle..." 
-              className="w-full rounded-[20px] outline-none border-none p-[8px] relative bg-transparent text-white placeholder:text-white/80"
+              className="w-full rounded-[20px] outline-none border-none p-[8px] relative bg-transparent text-white placeholder:text-white/100 "
             />
-            <button type="submit" className="cursor-pointer border-none bg-transparent flex justify-center items-center rounded-[12px] p-[5px] transition-all duration-400 hover:bg-white/40 text-white">
+            <button type="submit" className="cursor-pointer border-none bg-transparent flex justify-center items-center rounded-[12px] p-[5px] transition-all duration-400 hover:bg-white/40 text-white ">
               <Search className="h-5 w-5" />
             </button>
           </div>
@@ -78,14 +78,7 @@ export function HeroSection() {
           transition={{ delay: 1, duration: 0.5 }}
           className="flex justify-center relative z-20"
         >
-          <HoverBorderGradient
-            containerClassName="rounded-full"
-            as="button"
-            className="dark:bg-black bg-white text-black dark:text-white flex items-center space-x-2 px-6 py-2"
-            onClick={() => router.push('/sign-up')}
-          >
-            <span>Create your profile</span>
-          </HoverBorderGradient>
+          <CyberButton onClick={() => router.push('/sign-up')} />
         </motion.div>
       </div>
     </div>

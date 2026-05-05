@@ -1,5 +1,6 @@
 "use client";
 
+
 import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
@@ -23,6 +24,14 @@ export function PublicHeader() {
       {
       name: "Contact",
       link: "#contact",
+    },
+      {
+      name: "Github",
+      link: "https://github.com/LeveL-P1/UniCC",
+    },
+      {
+      name: "Twitter",
+      link: "https://twitter.com/Level_p1",
     },
   ];
 
