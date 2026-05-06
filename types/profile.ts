@@ -14,6 +14,7 @@ export interface UserSettings {
 }
 
 export interface PublicProfile {
+  id: string;
   username: string;
   fullName: string;
   bio: string;
@@ -30,6 +31,7 @@ export interface PublicProfile {
 }
 
 export interface SearchResultProfile {
+  id: string;
   username: string;
   fullName: string;
   avatarUrl?: string;

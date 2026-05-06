@@ -1,6 +1,7 @@
 import type { PublicProfile, SearchResultProfile, UserSettings } from "@/types/profile";
 
 const baseProfile: PublicProfile = {
+  id: "usr_tourist",
   username: "tourist",
   fullName: "Gennady Korotkevich",
   bio: "Competitive programmer focused on contests and algorithms.",
@@ -43,6 +44,7 @@ export const mockProfiles: PublicProfile[] = [
   baseProfile,
   {
     ...baseProfile,
+    id: "usr_pawan",
     username: "pawan",
     fullName: "Pawan",
     bio: "Building consistent CP habits across platforms.",
@@ -50,6 +52,7 @@ export const mockProfiles: PublicProfile[] = [
   },
   {
     ...baseProfile,
+    id: "usr_errichto",
     username: "errichto",
     fullName: "Tomasz",
     bio: "Contest problem solving and educational content.",
@@ -58,6 +61,7 @@ export const mockProfiles: PublicProfile[] = [
 ];
 
 export const mockSearchResults: SearchResultProfile[] = mockProfiles.map((p) => ({
+  id: p.id,
   username: p.username,
   fullName: p.fullName,
   avatarUrl: p.avatarUrl,

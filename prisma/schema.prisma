@@ -179,6 +179,52 @@ model UnifiedMetricSnapshot {
   @@unique([userId, capturedAt])
 }
 
+model ExternalProfile {
+  id              String   @id @default(cuid())
+  primaryHandle   String   @unique
+  displayName     String?
+  bio             String?
+  avatarUrl       String?
+  lastRefreshedAt DateTime?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  platformSnapshots ExternalPlatformSnapshot[]
+}
+
+model ExternalPlatformSnapshot {
+  id                String    @id @default(cuid())
+  externalProfileId String
+  platform          Platform
+  handle            String
+  profileUrl        String?
+  capturedAt        DateTime
+
+  totalSolved       Int       @default(0)
+  easySolved        Int?
+  mediumSolved      Int?
+  hardSolved        Int?
+
+  rating            Int?
+  rank              String?
+
+  ratings           Json?
+  contests          Json?
+  rawSnapshot       Json?
+
+  lastError         String?
+  lastErrorCode     String?
+
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+
+  externalProfile   ExternalProfile @relation(fields: [externalProfileId], references: [id], onDelete: Cascade)
+
+  @@unique([externalProfileId, platform])
+  @@index([platform, handle])
+  @@index([externalProfileId])
+}
+
 enum Platform {
   LEETCODE
   CODEFORCES
