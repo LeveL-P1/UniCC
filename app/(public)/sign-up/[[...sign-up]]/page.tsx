@@ -6,7 +6,7 @@ export default function SignUpPage() {
   return (
     <PageContainer className="py-10">
       <SectionCard className="mx-auto max-w-md p-6">
-        <SignUp routing="path" path="/sign-up" />
+        <SignUp routing="path" path="/sign-up" forceRedirectUrl="/dashboard" />
       </SectionCard>
     </PageContainer>
   );

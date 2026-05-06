@@ -1,9 +1,8 @@
 "use client";
 
-
-import Link from "next/link";
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { SignedIn, SignedOut, UserButton } from "@clerk/nextjs";
 import {
   Navbar,
   NavBody,
@@ -42,8 +41,14 @@ export function PublicHeader() {
         <NavbarLogo />
         <NavItems items={navItems} />
         <div className="flex items-center gap-4">
-          <NavbarButton variant="secondary" onClick={() => router.push('/sign-in')}>Sign In</NavbarButton>
-          <NavbarButton variant="primary" onClick={() => router.push('/sign-up')}>Create Profile</NavbarButton>
+          <SignedOut>
+            <NavbarButton variant="secondary" onClick={() => router.push('/sign-in')}>Sign In</NavbarButton>
+            <NavbarButton variant="primary" onClick={() => router.push('/sign-up')}>Create Profile</NavbarButton>
+          </SignedOut>
+          <SignedIn>
+            <NavbarButton variant="secondary" onClick={() => router.push('/dashboard')}>Dashboard</NavbarButton>
+            <UserButton afterSignOutUrl="/" />
+          </SignedIn>
         </div>
       </NavBody>
 
@@ -72,26 +77,43 @@ export function PublicHeader() {
             </a>
           ))}
           <div className="flex w-full flex-col gap-4">
-            <NavbarButton
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                router.push('/sign-in');
-              }}
-              variant="secondary"
-              className="w-full"
-            >
-              Sign In
-            </NavbarButton>
-            <NavbarButton
-              onClick={() => {
-                setIsMobileMenuOpen(false);
-                router.push('/sign-up');
-              }}
-              variant="secondary"
-              className="w-full"
-            >
-              Create Profile
-            </NavbarButton>
+            <SignedOut>
+              <NavbarButton
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  router.push('/sign-in');
+                }}
+                variant="secondary"
+                className="w-full"
+              >
+                Sign In
+              </NavbarButton>
+              <NavbarButton
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  router.push('/sign-up');
+                }}
+                variant="secondary"
+                className="w-full"
+              >
+                Create Profile
+              </NavbarButton>
+            </SignedOut>
+            <SignedIn>
+              <NavbarButton
+                onClick={() => {
+                  setIsMobileMenuOpen(false);
+                  router.push('/dashboard');
+                }}
+                variant="secondary"
+                className="w-full"
+              >
+                Dashboard
+              </NavbarButton>
+              <div className="flex justify-center py-2">
+                <UserButton afterSignOutUrl="/" />
+              </div>
+            </SignedIn>
           </div>
         </MobileNavMenu>
       </MobileNav>

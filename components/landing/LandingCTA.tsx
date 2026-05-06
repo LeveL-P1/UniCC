@@ -1,6 +1,7 @@
 "use client";
 
 import { useRouter } from "next/navigation";
+import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { SectionCard } from "@/components/ui/SectionCard";
 
 export function LandingCTA() {
@@ -15,12 +16,22 @@ export function LandingCTA() {
         Connect your profiles and generate a single public page.
       </p>
       <div className="flex justify-center">
-        <button 
-          onClick={() => router.push('/sign-up')}
-          className="px-10 py-4 bg-white/5 backdrop-blur-sm border-b-2 border-white/20 text-white rounded-xl hover:bg-white/10 hover:border-white/50 transition-all duration-300 uppercase tracking-[0.15em] text-sm font-bold shadow-lg"
-        >
-          Create Your Profile
-        </button>
+        <SignedOut>
+          <button 
+            onClick={() => router.push('/sign-up')}
+            className="px-10 py-4 bg-white/5 backdrop-blur-sm border-b-2 border-white/20 text-white rounded-xl hover:bg-white/10 hover:border-white/50 transition-all duration-300 uppercase tracking-[0.15em] text-sm font-bold shadow-lg"
+          >
+            Create Your Profile
+          </button>
+        </SignedOut>
+        <SignedIn>
+          <button 
+            onClick={() => router.push('/dashboard')}
+            className="px-10 py-4 bg-white/5 backdrop-blur-sm border-b-2 border-white/20 text-white rounded-xl hover:bg-white/10 hover:border-white/50 transition-all duration-300 uppercase tracking-[0.15em] text-sm font-bold shadow-lg"
+          >
+            Go to Dashboard
+          </button>
+        </SignedIn>
       </div>
     </SectionCard>
   );
