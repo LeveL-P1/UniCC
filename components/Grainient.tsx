@@ -156,86 +156,119 @@ const Grainient: React.FC<GrainientProps> = ({
   useEffect(() => {
     if (!containerRef.current) return;
 
-    const renderer = new Renderer({
-      webgl: 2,
-      alpha: true,
-      antialias: false,
-      dpr: Math.min(window.devicePixelRatio || 1, 2)
-    });
+    const reduceMotion =
+      typeof window !== "undefined" &&
+      window.matchMedia &&
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    if (reduceMotion) return;
 
-    const gl = renderer.gl;
-    const canvas = gl.canvas as HTMLCanvasElement;
-    canvas.style.width = '100%';
-    canvas.style.height = '100%';
-    canvas.style.display = 'block';
+    let cancelled = false;
+    let cleanup: (() => void) | null = null;
+    const start = () => {
+      if (cancelled) return;
+      if (!containerRef.current) return;
 
-    const container = containerRef.current;
-    container.appendChild(canvas);
+      const renderer = new Renderer({
+        webgl: 2,
+        alpha: true,
+        antialias: false,
+        dpr: 1,
+      });
 
-    const geometry = new Triangle(gl);
-    const program = new Program(gl, {
-      vertex,
-      fragment,
-      uniforms: {
-        iTime: { value: 0 },
-        iResolution: { value: new Float32Array([1, 1]) },
-        uTimeSpeed: { value: timeSpeed },
-        uColorBalance: { value: colorBalance },
-        uWarpStrength: { value: warpStrength },
-        uWarpFrequency: { value: warpFrequency },
-        uWarpSpeed: { value: warpSpeed },
-        uWarpAmplitude: { value: warpAmplitude },
-        uBlendAngle: { value: blendAngle },
-        uBlendSoftness: { value: blendSoftness },
-        uRotationAmount: { value: rotationAmount },
-        uNoiseScale: { value: noiseScale },
-        uGrainAmount: { value: grainAmount },
-        uGrainScale: { value: grainScale },
-        uGrainAnimated: { value: grainAnimated ? 1.0 : 0.0 },
-        uContrast: { value: contrast },
-        uGamma: { value: gamma },
-        uSaturation: { value: saturation },
-        uCenterOffset: { value: new Float32Array([centerX, centerY]) },
-        uZoom: { value: zoom },
-        uColor1: { value: new Float32Array(hexToRgb(color1)) },
-        uColor2: { value: new Float32Array(hexToRgb(color2)) },
-        uColor3: { value: new Float32Array(hexToRgb(color3)) }
-      }
-    });
+      const gl = renderer.gl;
+      const canvas = gl.canvas as HTMLCanvasElement;
+      canvas.style.width = "100%";
+      canvas.style.height = "100%";
+      canvas.style.display = "block";
 
-    const mesh = new Mesh(gl, { geometry, program });
+      const container = containerRef.current;
+      container.appendChild(canvas);
 
-    const setSize = () => {
-      const rect = container.getBoundingClientRect();
-      const width = Math.max(1, Math.floor(rect.width));
-      const height = Math.max(1, Math.floor(rect.height));
-      renderer.setSize(width, height);
-      const res = (program.uniforms.iResolution as { value: Float32Array }).value;
-      res[0] = gl.drawingBufferWidth;
-      res[1] = gl.drawingBufferHeight;
-      renderer.render({ scene: mesh });
-    };
+      const geometry = new Triangle(gl);
+      const program = new Program(gl, {
+        vertex,
+        fragment,
+        uniforms: {
+          iTime: { value: 0 },
+          iResolution: { value: new Float32Array([1, 1]) },
+          uTimeSpeed: { value: timeSpeed },
+          uColorBalance: { value: colorBalance },
+          uWarpStrength: { value: warpStrength },
+          uWarpFrequency: { value: warpFrequency },
+          uWarpSpeed: { value: warpSpeed },
+          uWarpAmplitude: { value: warpAmplitude },
+          uBlendAngle: { value: blendAngle },
+          uBlendSoftness: { value: blendSoftness },
+          uRotationAmount: { value: rotationAmount },
+          uNoiseScale: { value: noiseScale },
+          uGrainAmount: { value: grainAmount },
+          uGrainScale: { value: grainScale },
+          uGrainAnimated: { value: grainAnimated ? 1.0 : 0.0 },
+          uContrast: { value: contrast },
+          uGamma: { value: gamma },
+          uSaturation: { value: saturation },
+          uCenterOffset: { value: new Float32Array([centerX, centerY]) },
+          uZoom: { value: zoom },
+          uColor1: { value: new Float32Array(hexToRgb(color1)) },
+          uColor2: { value: new Float32Array(hexToRgb(color2)) },
+          uColor3: { value: new Float32Array(hexToRgb(color3)) },
+        },
+      });
 
-    const ro = new ResizeObserver(setSize);
-    ro.observe(container);
-    setSize();
+      const mesh = new Mesh(gl, { geometry, program });
 
-    let raf = 0;
-    const t0 = performance.now();
-    const loop = (t: number) => {
-      (program.uniforms.iTime as { value: number }).value = (t - t0) * 0.001;
-      renderer.render({ scene: mesh });
+      const setSize = () => {
+        const rect = container.getBoundingClientRect();
+        const width = Math.max(1, Math.floor(rect.width));
+        const height = Math.max(1, Math.floor(rect.height));
+        renderer.setSize(width, height);
+        const res = (program.uniforms.iResolution as { value: Float32Array }).value;
+        res[0] = gl.drawingBufferWidth;
+        res[1] = gl.drawingBufferHeight;
+        renderer.render({ scene: mesh });
+      };
+
+      const ro = new ResizeObserver(setSize);
+      ro.observe(container);
+      setSize();
+
+      let raf = 0;
+      const t0 = performance.now();
+      const loop = (t: number) => {
+        if (document.visibilityState !== "visible") {
+          raf = requestAnimationFrame(loop);
+          return;
+        }
+        (program.uniforms.iTime as { value: number }).value = (t - t0) * 0.001;
+        renderer.render({ scene: mesh });
+        raf = requestAnimationFrame(loop);
+      };
       raf = requestAnimationFrame(loop);
+
+      cleanup = () => {
+        cancelAnimationFrame(raf);
+        ro.disconnect();
+        try {
+          container.removeChild(canvas);
+        } catch {
+          // Ignore
+        }
+      };
     };
-    raf = requestAnimationFrame(loop);
+
+    // Defer WebGL init so initial paint/hydration stays fast.
+    const w = window as unknown as { requestIdleCallback?: (cb: () => void, opts?: { timeout: number }) => number };
+    const idleId = w.requestIdleCallback
+      ? w.requestIdleCallback(start, { timeout: 1500 })
+      : window.setTimeout(start, 300);
 
     return () => {
-      cancelAnimationFrame(raf);
-      ro.disconnect();
-      try {
-        container.removeChild(canvas);
-      } catch {
-        // Ignore
+      cancelled = true;
+      cleanup?.();
+      if (w.requestIdleCallback && typeof idleId === "number") {
+        // no cancelIdleCallback typed; ignore
+      } else {
+        window.clearTimeout(idleId as unknown as number);
       }
     };
   }, [

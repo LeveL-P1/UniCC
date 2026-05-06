@@ -1,5 +1,6 @@
 "use client";
 import React, { useRef, useState } from "react";
+import Link from "next/link";
 import { motion, AnimatePresence, useScroll, useMotionValueEvent } from "framer-motion";
 import { cn } from "@/lib/utils";
 import { Menu, X } from "lucide-react";
@@ -214,12 +215,9 @@ export const MobileNavToggle = ({
 
 export const NavbarLogo = () => {
   return (
-    <a
-      href="/"
-      className="relative z-20 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-white"
-    >
+    <Link href="/" className="relative z-20 flex items-center space-x-2 px-2 py-1 text-sm font-normal text-white">
       <span className="font-bold text-xl tracking-tight text-white ">UniCC</span>
-    </a>
+    </Link>
   );
 };
 
