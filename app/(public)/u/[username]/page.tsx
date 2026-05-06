@@ -10,7 +10,7 @@ import { usePublicProfile } from "@/hooks/usePublicProfile";
 
 export default function PublicProfilePage({ params }: { params: Promise<{ username: string }> }) {
   const { username } = use(params);
-  const { profile, isAuthenticated, loading, error } = usePublicProfile(username);
+  const { profile, isAuthenticated, loading, error, refreshing } = usePublicProfile(username);
 
   if (loading) {
     return <PageContainer className="py-10 text-sm text-muted-foreground">Loading profile...</PageContainer>;
@@ -22,6 +22,7 @@ export default function PublicProfilePage({ params }: { params: Promise<{ userna
 
   return (
     <PageContainer className="space-y-6 py-8">
+      {refreshing ? <p className="text-xs text-muted-foreground">Refreshing latest stats…</p> : null}
       <ProfileHeader profile={profile} />
       <StatsOverview overview={profile.overview} />
       <PlatformCardsGrid platforms={profile.platformStats} />

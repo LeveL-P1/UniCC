@@ -14,8 +14,18 @@ export async function searchProfiles(query: string) {
   return unwrap<{ results: SearchResultProfile[] }>(await fetch(`/api/profiles/search?q=${encodeURIComponent(query)}`));
 }
 
-export async function getPublicProfile(username: string) {
-  return unwrap<{ profile: PublicProfile; isAuthenticated: boolean }>(await fetch(`/api/profiles/${username}`));
+export async function getPublicProfile(
+  username: string,
+  options: { refresh?: boolean; staleMinutes?: number; signal?: AbortSignal } = {}
+) {
+  const search = new URLSearchParams();
+  if (options.refresh) search.set("refresh", "1");
+  if (typeof options.staleMinutes === "number") search.set("staleMinutes", String(options.staleMinutes));
+  const qs = search.toString();
+
+  return unwrap<{ profile: PublicProfile; isAuthenticated: boolean }>(
+    await fetch(`/api/profiles/${encodeURIComponent(username)}${qs ? `?${qs}` : ""}`, { signal: options.signal })
+  );
 }
 
 export async function getMyStats() {

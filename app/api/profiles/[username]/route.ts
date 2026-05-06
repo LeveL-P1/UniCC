@@ -1,20 +1,31 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
-import { mockProfiles } from "@/lib/mock-data";
+import { getExternalProfilePublicView } from "@/lib/externalProfiles/service";
 
 type RouteContext = {
   params: Promise<{ username: string }>;
 };
 
-export async function GET(_: Request, context: RouteContext) {
+export async function GET(request: Request, context: RouteContext) {
   const { userId } = await auth();
   const { username } = await context.params;
-  const profile = mockProfiles.find((item) => item.username.toLowerCase() === username.toLowerCase());
 
-  if (!profile) return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+  try {
+    const { searchParams } = new URL(request.url);
+    const refresh = searchParams.get("refresh") === "1";
+    const staleMinutes = Number(searchParams.get("staleMinutes") ?? "");
 
-  return NextResponse.json({
-    profile,
-    isAuthenticated: Boolean(userId),
-  });
+    const result = await getExternalProfilePublicView(decodeURIComponent(username), {
+      refresh,
+      staleMinutes: Number.isFinite(staleMinutes) ? staleMinutes : undefined,
+    });
+
+    return NextResponse.json({
+      profile: result.profile,
+      isAuthenticated: Boolean(userId),
+    });
+  } catch (error) {
+    console.error("Public profile fetch failed:", error);
+    return NextResponse.json({ error: "Profile not found" }, { status: 404 });
+  }
 }
