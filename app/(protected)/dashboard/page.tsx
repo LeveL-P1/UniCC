@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { PageContainer } from "@/components/layout/PageContainer";
 import { ActivityOverviewCard } from "@/components/dashboard/ActivityOverviewCard";
 import { LinkPlatformCard } from "@/components/dashboard/LinkPlatformCard";
 import { PlatformSyncCard } from "@/components/dashboard/PlatformSyncCard";
@@ -9,6 +8,8 @@ import { ProfileCard } from "@/components/dashboard/ProfileCard";
 import { usePlatformSync } from "@/hooks/usePlatformSync";
 import { getMyStats } from "@/lib/api-client";
 import { mockProfiles } from "@/lib/mock-data";
+import { SectionCard } from "@/components/ui/SectionCard";
+import { Sparkles, Calendar } from "lucide-react";
 import type { DetailedStats, StatOverview } from "@/types/stats";
 import type { PlatformStats } from "@/types/platform";
 
@@ -30,30 +31,68 @@ export default function DashboardPage() {
   }, []);
 
   return (
-    <PageContainer className="py-8">
-      <h1 className="text-3xl font-semibold">Dashboard</h1>
-      <p className="mt-2 text-sm text-muted-foreground">Create and manage your custom competitive programming profile.</p>
-
-      <div className="mt-6 grid gap-4 md:grid-cols-3">
-        <ProfileCard username={owner.username} fullName={owner.fullName} bio={owner.bio} />
-        {platformStats.slice(0, 3).map((item) => (
-          <PlatformSyncCard
-            key={item.platform}
-            item={item}
-            syncing={syncingPlatform === item.platform}
-            onSync={() => syncPlatform(item.platform.toUpperCase())}
-          />
-        ))}
-        <LinkPlatformCard />
-        <ActivityOverviewCard overview={overview} />
+    <div className="space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
+      {/* Welcome Header */}
+      <div className="flex flex-col md:flex-row md:items-end justify-between gap-4">
+        <div>
+          <div className="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-[0.2em] mb-2">
+            <Sparkles size={14} />
+            <span>Developer Overview</span>
+          </div>
+          <h1 className="text-4xl font-extrabold text-white tracking-tight">
+            Welcome back, <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">{owner.fullName.split(' ')[0]}!</span>
+          </h1>
+          <p className="mt-2 text-neutral-400 max-w-lg">
+            Track your coding progress across multiple platforms and showcase your achievements in one place.
+          </p>
+        </div>
+        <div className="hidden lg:flex items-center gap-2 px-4 py-2 bg-white/5 rounded-xl border border-white/5 text-sm text-neutral-400">
+          <Calendar size={16} />
+          <span>{new Date().toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })}</span>
+        </div>
       </div>
 
-      <div className="mt-6 rounded-2xl border border-border bg-card p-5">
-        <h2 className="text-lg font-semibold">Activity Preview</h2>
-        <p className="mt-2 text-sm text-muted-foreground">
-          Last 7 days active count: {detailed.heatmap.slice(-7).reduce((acc, day) => acc + day.count, 0)}
-        </p>
+      {/* Main Stats Row */}
+      <ActivityOverviewCard overview={overview} />
+
+      {/* Secondary Row: Profile & Platforms */}
+      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+        {/* Left Column: Profile & Preview */}
+        <div className="lg:col-span-2 space-y-6">
+          <ProfileCard username={owner.username} fullName={owner.fullName} bio={owner.bio} />
+          
+          <SectionCard 
+            title="Activity Insights" 
+            description="Recent performance metrics from your connected platforms."
+          >
+            <div className="h-[200px] flex items-center justify-center border border-dashed border-white/10 rounded-2xl bg-white/[0.01]">
+              <p className="text-neutral-500 text-sm">Activity heatmap visualization coming soon...</p>
+            </div>
+          </SectionCard>
+        </div>
+
+        {/* Right Column: Platform Syncing */}
+        <div className="space-y-6">
+          <div className="flex items-center justify-between px-2">
+            <h2 className="text-sm font-bold uppercase tracking-widest text-neutral-500">Connected Profiles</h2>
+            <span className="text-[10px] font-bold text-indigo-400 bg-indigo-400/10 px-2 py-0.5 rounded-full uppercase">
+              {platformStats.length} Platforms
+            </span>
+          </div>
+          
+          <div className="grid grid-cols-1 gap-4">
+            {platformStats.slice(0, 2).map((item) => (
+              <PlatformSyncCard
+                key={item.platform}
+                item={item}
+                syncing={syncingPlatform === item.platform}
+                onSync={() => syncPlatform(item.platform.toUpperCase())}
+              />
+            ))}
+            <LinkPlatformCard />
+          </div>
+        </div>
       </div>
-    </PageContainer>
+    </div>
   );
 }
