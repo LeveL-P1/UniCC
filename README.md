@@ -1,41 +1,62 @@
-# UNICC – Developer Productivity Dashboard
+# 🌌 UNICC – Premium Developer Productivity Dashboard (v2.0)
 
-A full-stack dashboard to track coding practice sessions and visualize productivity across platforms like LeetCode and Codeforces.
+A high-performance, aesthetically stunning full-stack dashboard designed for competitive programmers. UNICC centralizes your coding journey, visualizing progress and streaks across platforms like LeetCode and Codeforces in one unified, premium interface.
 
-## ✨ What it does
-- User authentication (Clerk)
-- Log coding practice sessions
-- Visual analytics (charts, streaks, trends)
-- Responsive dark-themed dashboard
+---
+
+## 🚀 Version 2.0 – The UI/UX Overhaul
+Version 2 is a complete ground-up redesign focused on "wowing" the user with a premium, state-of-the-art interface.
+
+*   **Traditional 2-Part Dashboard:** Re-engineered the layout to feature a fixed sidebar and a fluid main content area for a professional, enterprise-grade feel.
+*   **Premium Aesthetic:** Implemented a "Cosmic Nebula" theme using glassmorphism, dynamic gradients, and smooth animations.
+*   **Aesthetic Backgrounds:** Integrated a custom interactive particle background (`Grainient`) that makes the interface feel alive.
+*   **Enhanced Navigation:** Responsive sidebar with active state tracking and mobile-optimized toggle menus.
+*   **Refined Components:** Every card, button, and input has been redesigned with custom borders, transitions, and high-fidelity typography (Outfit/Cambria).
+*   **Auth Integration:** Seamlessly integrated Clerk Authentication with custom-styled login and signup flows.
+
+---
+
+## ✨ Core Features
+
+*   **Multi-Platform Sync:** Connect and visualize stats from LeetCode, Codeforces, and more.
+*   **Visual Analytics:** Track your coding volume, best ratings, and contest attendance through high-impact visual cards.
+*   **Personalized Profile:** Showcase your coding identity with a customizable public profile page (`/u/username`).
+*   **Real-time Updates:** Manual and automatic syncing to keep your platform stats fresh.
+*   **Responsive Design:** Fully optimized for mobile, tablet, and desktop viewing.
+*   **Activity Insights:** Preview your coding consistency with upcoming heatmap and trend visualizations.
+*   **Secure Auth:** Powered by Clerk for industry-standard security and user management.
+
+---
 
 ## 🛠️ Tech Stack
-- **Frontend:** Next.js (App Router), TypeScript, Tailwind CSS, Recharts  
-- **Backend:** Next.js API Routes, Prisma, PostgreSQL (Neon)  
-- **Auth:** Clerk
 
-## 📸 Screenshots
+*   **Framework:** [Next.js 16 (App Router)](https://nextjs.org/)
+*   **Language:** [TypeScript](https://www.typescriptlang.org/)
+*   **Styling:** [Tailwind CSS 4.0](https://tailwindcss.com/)
+*   **Animations:** [Framer Motion](https://www.framer.com/motion/)
+*   **Database:** [PostgreSQL (Neon)](https://neon.tech/)
+*   **ORM:** [Prisma](https://www.prisma.io/)
+*   **Authentication:** [Clerk](https://clerk.com/)
+*   **Visuals:** [Lucide React](https://lucide.dev/), [OGL](https://github.com/oframe/ogl)
 
-### Dashboard Overview
-![Dashboard](./screenshots/dashboard.gif)
+---
 
-### Session Management
-![Sessions](./screenshots/sessions.png)
+## 📸 Deployment & Status
 
-## 🚀 Local Setup
-```bash
-git clone https://github.com/Level-P1/unicc-dashboard.git
-cd unicc-dashboard
-npm install
+*   **Live Status:** 🟢 This project is fully deployed and production-ready.
+*   **Deployment:** The latest Version 2 improvements are live and visible on the website.
+*   **Performance:** Optimized for fast load times and smooth transitions across all pages.
 
-## Environment setup
-//Set up environment variables: Create a .env file in the root directory:
-DATABASE_URL="your_neon_database_url"
-NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY="your_clerk_publishable_key"
-CLERK_SECRET_KEY="your_clerk_secret_key"
+---
 
-## Set up the database:
-npx prisma db push
-npx prisma generate
-```
+## ⚙️ Local Development
 
-Built with 🧠 using Next.js and TypeScript by P1
+*   **Clone the Repo:** `git clone https://github.com/Level-P1/unicc-dashboard.git`
+*   **Install Deps:** `npm install`
+*   **Setup Env:** Create a `.env` file with your Clerk and Database keys.
+*   **Database Sync:** `npx prisma db push`
+*   **Run Dev:** `npm run dev`
+
+---
+
+Built with 💜 by **Level-P1**
