@@ -1,6 +1,10 @@
-# 🌌 UNICC – Premium Developer Productivity Dashboard (v2.0)
+# 🌌 UNICC – Unified Competitive Programming Stats and Dashboard (v2.0)
 
-A high-performance, aesthetically stunning full-stack dashboard designed for competitive programmers. UNICC centralizes your coding journey, visualizing progress and streaks across platforms like LeetCode and Codeforces in one unified, premium interface.
+> [!CAUTION]
+> This project is fully made for **EXPERIMENTATION** and **EXPLORING THE IDEA** and it does **NOT** assure to provide real metrics at all.
+
+
+A high-performance, aesthetically stunning full-stack dashboard designed for competitive programmers. UNICC centralizes your coding journey, visualizing progress and streaks across platforms like LeetCode and Codeforces in one unified, modern interface.
 
 ---
 
