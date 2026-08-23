@@ -1,8 +1,8 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 export const runtime = 'nodejs'
 import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
+import { parseUpdateSessionBody } from '@/lib/validation/sessions'
 
 
 // UPDATE - Edit existing session
@@ -45,26 +45,14 @@ export async function PUT(
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 })
     }
 
-    // Parse request body
-    const body = await request.json()
-
-    // Build update payload safely (partial updates allowed)
-    const updateData: any = {}
-
-    if (body.date !== undefined) updateData.date = new Date(body.date)
-    if (body.platform !== undefined) updateData.platform = body.platform
-    if (body.problemsSolved !== undefined) updateData.problemsSolved = body.problemsSolved
-    if (body.easy !== undefined) updateData.easy = body.easy
-    if (body.medium !== undefined) updateData.medium = body.medium
-    if (body.hard !== undefined) updateData.hard = body.hard
-    if (body.timeSpentMinutes !== undefined) updateData.timeSpentMinutes = body.timeSpentMinutes
-    if (body.topics !== undefined) updateData.topics = body.topics
-    if (body.notes !== undefined) updateData.notes = body.notes
+    const body = await request.json().catch(() => null)
+    const parsed = parseUpdateSessionBody(body)
+    if (!parsed.data) return NextResponse.json({ error: parsed.error }, { status: 400 })
 
     // Update session
     const updatedSession = await prisma.codingSession.update({
       where: { id },
-      data: updateData
+      data: parsed.data
     })
 
     return NextResponse.json(updatedSession)

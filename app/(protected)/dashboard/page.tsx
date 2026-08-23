@@ -7,22 +7,30 @@ import { PlatformSyncCard } from "@/components/dashboard/PlatformSyncCard";
 import { ProfileCard } from "@/components/dashboard/ProfileCard";
 import { usePlatformSync } from "@/hooks/usePlatformSync";
 import { getMyStats } from "@/lib/api-client";
-import { mockProfiles } from "@/lib/mock-data";
 import { SectionCard } from "@/components/ui/SectionCard";
 import { Sparkles, Calendar } from "lucide-react";
 import type { DetailedStats, StatOverview } from "@/types/stats";
 import type { PlatformStats } from "@/types/platform";
 
 export default function DashboardPage() {
-  const owner = mockProfiles.find((profile) => profile.isOwner) ?? mockProfiles[0];
   const { syncingPlatform, syncPlatform } = usePlatformSync();
-  const [overview, setOverview] = useState<StatOverview>(owner.overview);
-  const [platformStats, setPlatformStats] = useState<PlatformStats[]>(owner.platformStats);
-  const [detailed, setDetailed] = useState<DetailedStats>(owner.detailedStats);
+  const [profile, setProfile] = useState({
+    username: "profile",
+    fullName: "Your Dashboard",
+    bio: "Connect platforms or add sessions to start building your profile.",
+  });
+  const [overview, setOverview] = useState<StatOverview>({ totalSolved: 0, bestRating: 0, contestsAttended: 0 });
+  const [platformStats, setPlatformStats] = useState<PlatformStats[]>([]);
+  const [detailed, setDetailed] = useState<DetailedStats>({
+    heatmap: [],
+    ratingTimeline: [],
+    difficultyDistribution: { easy: 0, medium: 0, hard: 0 },
+  });
 
   useEffect(() => {
     getMyStats()
       .then((data) => {
+        if (data.profile) setProfile(data.profile);
         setOverview(data.overview);
         setPlatformStats(data.platformStats);
         setDetailed(data.detailedStats);
@@ -40,7 +48,7 @@ export default function DashboardPage() {
             <span>Developer Overview</span>
           </div>
           <h1 className="text-4xl font-extrabold text-white tracking-tight">
-            Welcome back, <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">{owner.fullName.split(' ')[0]}!</span>
+            Welcome back, <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">{profile.fullName.split(' ')[0]}!</span>
           </h1>
           <p className="mt-2 text-neutral-400 max-w-lg">
             Track your coding progress across multiple platforms and showcase your achievements in one place.
@@ -59,7 +67,7 @@ export default function DashboardPage() {
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
         {/* Left Column: Profile & Preview */}
         <div className="lg:col-span-2 space-y-6">
-          <ProfileCard username={owner.username} fullName={owner.fullName} bio={owner.bio} />
+          <ProfileCard username={profile.username} fullName={profile.fullName} bio={profile.bio} />
           
           <SectionCard 
             title="Activity Insights" 

@@ -1,7 +1,9 @@
 export const runtime = 'nodejs'
-import { auth, currentUser } from '@clerk/nextjs/server'
+import { auth } from '@clerk/nextjs/server'
 import { prisma } from '@/lib/prisma'
 import { NextResponse } from 'next/server'
+import { getOrCreateUser } from '@/lib/auth/getOrCreateUser'
+import { parseCreateSessionBody, parseSessionQuery } from '@/lib/validation/sessions'
 
 
 export async function POST(request: Request) {
@@ -16,67 +18,17 @@ export async function POST(request: Request) {
       )
     }
 
-    // Get the current user from Clerk
-    const clerkUser = await currentUser()
+    const body = await request.json().catch(() => null)
+    const parsed = parseCreateSessionBody(body)
+    if (!parsed.data) return NextResponse.json({ error: parsed.error }, { status: 400 })
 
-    if (!clerkUser) {
-      return NextResponse.json(
-        { error: 'Unauthorized - No user found' },
-        { status: 401 }
-      )
-    }
-
-    // Get request body
-    const body = await request.json()
-    const {
-      date,
-      platform,
-      problemsSolved,
-      easy,
-      medium,
-      hard,
-      timeSpentMinutes,
-      topics,
-      notes
-    } = body
-
-    // Validate required fields
-    if (!date || !platform) {
-      return NextResponse.json(
-        { error: 'Date and platform are required' },
-        { status: 400 }
-      )
-    }
-
-    // Find or create user in our database
-    let user = await prisma.user.findUnique({
-      where: { clerkId: userId }
-    })
-
-    if (!user) {
-      // Create user if doesn't exist
-      user = await prisma.user.create({
-        data: {
-          clerkId: userId,
-          email: clerkUser.emailAddresses[0]?.emailAddress || '',
-          name: clerkUser.firstName || null,
-        }
-      })
-    }
+    const user = await getOrCreateUser(userId)
 
     // Create coding session
     const session = await prisma.codingSession.create({
       data: {
         userId: user.id,
-        date: new Date(date),
-        platform,
-        problemsSolved: problemsSolved || 0,
-        easy: easy || 0,
-        medium: medium || 0,
-        hard: hard || 0,
-        timeSpentMinutes: timeSpentMinutes || 0,
-        topics: topics || [],
-        notes: notes || null,
+        ...parsed.data,
       }
     })
 
@@ -85,7 +37,7 @@ export async function POST(request: Request) {
   } catch (error) {
     console.error('Error creating session:', error)
     return NextResponse.json(
-      { error: 'Internal server error', details: error instanceof Error ? error.message : 'Unknown error' },
+      { error: 'Internal server error' },
       { status: 500 }
     )
   }
@@ -115,31 +67,13 @@ export async function GET(request: Request) {
       )
     }
 
-    // Get query parameters for filtering
     const { searchParams } = new URL(request.url)
-    const platform = searchParams.get('platform')
-    const startDate = searchParams.get('startDate')
-    const endDate = searchParams.get('endDate')
-    const limit = searchParams.get('limit')
+    const parsedQuery = parseSessionQuery(searchParams)
+    if ('error' in parsedQuery) return NextResponse.json({ error: parsedQuery.error }, { status: 400 })
 
-    // Build filter conditions
-    // eslint-disable-next-line @typescript-eslint/no-explicit-any
-    const where: any = {
+    const where = {
+      ...parsedQuery.where,
       userId: user.id
-    }
-
-    if (platform) {
-      where.platform = platform
-    }
-
-    if (startDate || endDate) {
-      where.date = {}
-      if (startDate) {
-        where.date.gte = new Date(startDate)
-      }
-      if (endDate) {
-        where.date.lte = new Date(endDate)
-      }
     }
 
     // Fetch sessions with filters
@@ -148,7 +82,7 @@ export async function GET(request: Request) {
       orderBy: {
         date: 'desc'
       },
-      take: limit ? parseInt(limit) : undefined
+      take: parsedQuery.take
     })
 
     // Calculate summary stats
