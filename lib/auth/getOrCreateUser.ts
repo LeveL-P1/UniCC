@@ -1,25 +1,34 @@
 import { currentUser } from '@clerk/nextjs/server'
+import { Prisma } from '@prisma/client'
 import { prisma } from '@/lib/prisma'
 
 export async function getOrCreateUser(clerkId: string) {
-  let user = await prisma.user.findUnique({
+  const existing = await prisma.user.findUnique({
     where: { clerkId }
   })
 
-  if (user) return user
+  if (existing) return existing
 
   const clerkUser = await currentUser()
   if (!clerkUser) {
     throw new Error('Authenticated user missing in Clerk context')
   }
 
-  user = await prisma.user.create({
-    data: {
-      clerkId,
-      email: clerkUser.emailAddresses[0]?.emailAddress || `${clerkId}@unknown.local`,
-      name: clerkUser.firstName || null
-    }
-  })
+  const email = clerkUser.emailAddresses[0]?.emailAddress || `${clerkId}@unknown.local`
+  const name = clerkUser.fullName || clerkUser.firstName || null
 
-  return user
+  try {
+    return await prisma.user.create({
+      data: {
+        clerkId,
+        email,
+        name
+      }
+    })
+  } catch (error) {
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2002') {
+      return prisma.user.findUniqueOrThrow({ where: { clerkId } })
+    }
+    throw error
+  }
 }

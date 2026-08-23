@@ -27,6 +27,18 @@ model User {
   platformSolvedSnapshots PlatformSolvedSnapshot[]
   platformContestHistory PlatformContestHistory[]
   syncJobLogs      SyncJobLog[]
+  settings         UserSettings?
+}
+
+model UserSettings {
+  id            String   @id @default(cuid())
+  userId        String   @unique
+  notifications Json
+  privacy       Json
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
+
+  user          User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 }
 
 model CodingSession {

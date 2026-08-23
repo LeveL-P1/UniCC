@@ -31,6 +31,27 @@ export async function syncPlatformProfile(userId: string, platform: Platform, op
 
   const startedAt = new Date()
   const source = options.source ?? SyncSource.MANUAL
+  const locked = await prisma.platformProfile.updateMany({
+    where: {
+      id: profile.id,
+      syncStatus: { not: SyncStatus.SYNCING }
+    },
+    data: {
+      syncStatus: SyncStatus.SYNCING,
+      lastSyncStartedAt: startedAt,
+      lastError: null,
+      lastErrorCode: null
+    }
+  })
+
+  if (locked.count === 0) {
+    return {
+      platform,
+      success: false as const,
+      error: { code: 'RATE_LIMIT', message: `Sync already in progress for ${platform}` }
+    }
+  }
+
   const log = await prisma.syncJobLog.create({
     data: {
       userId,
@@ -39,16 +60,6 @@ export async function syncPlatformProfile(userId: string, platform: Platform, op
       source,
       status: SyncStatus.SYNCING,
       startedAt
-    }
-  })
-
-  await prisma.platformProfile.update({
-    where: { id: profile.id },
-    data: {
-      syncStatus: SyncStatus.SYNCING,
-      lastSyncStartedAt: new Date(),
-      lastError: null,
-      lastErrorCode: null
     }
   })
 

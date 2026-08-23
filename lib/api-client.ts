@@ -29,7 +29,12 @@ export async function getPublicProfile(
 }
 
 export async function getMyStats() {
-  return unwrap<{ overview: StatOverview; platformStats: PlatformStats[]; detailedStats: DetailedStats }>(
+  return unwrap<{
+    profile?: { username: string; fullName: string; bio: string };
+    overview: StatOverview;
+    platformStats: PlatformStats[];
+    detailedStats: DetailedStats;
+  }>(
     await fetch("/api/stats")
   );
 }

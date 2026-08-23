@@ -6,22 +6,18 @@ import { cn } from "@/lib/utils";
 import { 
   LayoutDashboard, 
   Settings, 
-  User, 
-  BarChart2, 
   Search, 
-  Globe,
   PlusCircle,
   Menu,
-  X
+  X,
+  ListChecks
 } from "lucide-react";
 import { useState } from "react";
 
 const menuItems = [
   { name: "Overview", icon: LayoutDashboard, href: "/dashboard" },
-  { name: "My Profile", icon: User, href: "/dashboard/profile" },
+  { name: "Sessions", icon: ListChecks, href: "/sessions" },
   { name: "Search", icon: Search, href: "/search" },
-  { name: "Public Page", icon: Globe, href: "/u/p1" }, // Example path
-  { name: "Analytics", icon: BarChart2, href: "/dashboard/analytics" },
   { name: "Settings", icon: Settings, href: "/settings" },
 ];
 
@@ -93,10 +89,10 @@ export function DashboardSidebar() {
 
           {/* Profile Quick Link / Actions */}
           <div className="p-4 border-t border-white/5">
-            <button className="flex items-center gap-3 w-full px-4 py-3 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 rounded-xl border border-indigo-500/20 transition-all">
+            <Link href="/settings" className="flex items-center gap-3 w-full px-4 py-3 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 rounded-xl border border-indigo-500/20 transition-all">
               <PlusCircle size={20} />
               <span className="font-medium text-sm">Add Platform</span>
-            </button>
+            </Link>
           </div>
         </div>
       </aside>

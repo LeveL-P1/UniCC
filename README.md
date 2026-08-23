@@ -47,9 +47,9 @@ Version 2 is a complete ground-up redesign focused on "wowing" the user with a p
 
 ## 📸 Deployment & Status
 
-*   **Live Status:** 🟢 This project is fully deployed and production-ready.
-*   **Deployment:** The latest Version 2 improvements are live and visible on the website.
-*   **Performance:** Optimized for fast load times and smooth transitions across all pages.
+*   **Status:** Experimental prototype. It has real auth/database/sync foundations, but the app still needs production hardening and a planned frontend rebuild before it should be treated as production-ready.
+*   **Deployment:** Configure Clerk, Postgres, Prisma migrations, and a protected cron scheduler before deploying.
+*   **Cron Security:** `/api/cron/sync` requires `CRON_SECRET` and an `Authorization: Bearer <secret>` header.
 
 ---
 
@@ -58,7 +58,7 @@ Version 2 is a complete ground-up redesign focused on "wowing" the user with a p
 *   **Clone the Repo:** `git clone https://github.com/Level-P1/unicc-dashboard.git`
 *   **Install Deps:** `npm install`
 *   **Setup Env:** Create a `.env` file with your Clerk and Database keys.
-*   **Database Sync:** `npx prisma db push`
+*   **Database Migrations:** `npx prisma migrate deploy`
 *   **Run Dev:** `npm run dev`
 
 ---

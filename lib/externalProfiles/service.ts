@@ -6,11 +6,12 @@ import type { PlatformKey, PlatformStats } from "@/types/platform";
 import type { HeatmapDay } from "@/types/stats";
 import { AdapterError } from "@/lib/integrations/base";
 import type { NormalizedPlatformStats } from "@/lib/sync/types";
+import { clampRefreshMinutes, normalizeExternalHandle, parseExternalHandle } from "@/lib/validation/externalProfiles";
 
 const DEFAULT_REFRESH_MINUTES = 6 * 60; // 6 hours
 
 function normalizeHandle(input: string): string {
-  return input.trim().replace(/^@+/, "");
+  return normalizeExternalHandle(input);
 }
 
 function platformToKey(platform: Platform): PlatformKey | null {
@@ -81,8 +82,8 @@ function toSearchResultProfile(profile: {
 }
 
 export async function resolveExternalProfile(primaryHandle: string) {
-  const handle = normalizeHandle(primaryHandle);
-  if (!handle) throw new Error("Handle is required");
+  const handle = parseExternalHandle(primaryHandle);
+  if (!handle) throw new Error("Invalid handle");
 
   return prisma.externalProfile.upsert({
     where: { primaryHandle: handle },
@@ -203,10 +204,11 @@ export async function getExternalProfilePublicView(
   identifier: string,
   options: { refresh?: boolean; staleMinutes?: number } = {}
 ): Promise<{ profile: PublicProfile; isAuthenticated: boolean }> {
-  const handle = normalizeHandle(identifier);
+  const handle = parseExternalHandle(identifier);
+  if (!handle) throw new Error("Invalid handle");
   const external = await resolveExternalProfile(handle);
 
-  const staleMinutes = options.staleMinutes ?? DEFAULT_REFRESH_MINUTES;
+  const staleMinutes = clampRefreshMinutes(options.staleMinutes, DEFAULT_REFRESH_MINUTES);
   const staleBefore = new Date(Date.now() - staleMinutes * 60 * 1000);
 
   const latest = await prisma.externalPlatformSnapshot.findMany({
@@ -363,22 +365,5 @@ export async function searchExternalProfiles(query: string, limit = 20): Promise
     })
   );
 
-  // If no cached results but query looks like a handle, create a placeholder immediately.
-  if (results.length === 0) {
-    const created = await resolveExternalProfile(q);
-    return [
-      toSearchResultProfile({
-        id: created.id,
-        primaryHandle: created.primaryHandle,
-        displayName: created.displayName,
-        bio: created.bio,
-        avatarUrl: created.avatarUrl,
-        totalSolved: 0,
-        topPlatform: null,
-      }),
-    ];
-  }
-
   return results;
 }
-
