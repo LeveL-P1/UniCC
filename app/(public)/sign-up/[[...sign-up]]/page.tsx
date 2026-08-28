@@ -1,14 +1,16 @@
 import { SignUp } from "@clerk/nextjs";
-import { PageContainer } from "@/components/layout/PageContainer";
-import { SectionCard } from "@/components/ui/SectionCard";
+import { AuthShell } from "@/components/layout/AuthShell";
+
+export const metadata = { title: "Create profile" };
 
 export default function SignUpPage() {
   return (
-    <PageContainer className="py-10">
-      <SectionCard className="mx-auto max-w-md p-6">
-        <SignUp routing="path" path="/sign-up" forceRedirectUrl="/dashboard" />
-      </SectionCard>
-    </PageContainer>
+    <AuthShell
+      eyebrow="Get started"
+      title="Create your profile"
+      description="Link your handles once. UNICC keeps the numbers current from there."
+    >
+      <SignUp routing="path" path="/sign-up" forceRedirectUrl="/dashboard" />
+    </AuthShell>
   );
 }
-

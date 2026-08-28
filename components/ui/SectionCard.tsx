@@ -1,28 +1,35 @@
 import { cn } from "@/lib/utils";
+import { Eyebrow } from "@/components/ui/section-header";
 
 interface SectionCardProps {
   title?: string;
   children: React.ReactNode;
   className?: string;
   description?: string;
+  action?: React.ReactNode;
 }
 
-export function SectionCard({ title, children, className, description }: SectionCardProps) {
+/** Carbon panel with a mono eyebrow header. The workhorse app surface. */
+export function SectionCard({
+  title,
+  children,
+  className,
+  description,
+  action,
+}: SectionCardProps) {
   return (
-    <section className={cn(
-      "rounded-3xl border border-white/5 bg-white/[0.03] backdrop-blur-md p-6 shadow-2xl transition-all duration-300 hover:bg-white/[0.05] hover:border-white/10", 
-      className
-    )}>
-      {title && (
-        <div className="mb-6">
-          <h2 className="text-xl font-bold bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
-            {title}
-          </h2>
-          {description && (
-            <p className="text-sm text-neutral-500 mt-1">{description}</p>
-          )}
-        </div>
-      )}
+    <section className={cn("rounded-card bg-carbon p-6 hairline", className)}>
+      {title ? (
+        <header className="mb-6 flex items-start justify-between gap-4">
+          <div>
+            <Eyebrow>{title}</Eyebrow>
+            {description ? (
+              <p className="mt-2 max-w-[54ch] text-[13px] text-ash">{description}</p>
+            ) : null}
+          </div>
+          {action ? <div className="shrink-0">{action}</div> : null}
+        </header>
+      ) : null}
       {children}
     </section>
   );

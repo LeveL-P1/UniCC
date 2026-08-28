@@ -1,20 +1,19 @@
 import type { ReactNode } from "react";
 import { PublicHeader } from "@/components/layout/PublicHeader";
 import { PublicBackground } from "@/components/layout/PublicBackground";
+import { SiteFooter } from "@/components/layout/SiteFooter";
+import { ScrollProgress } from "@/components/ui/scroll-progress";
 
 export default function PublicLayout({ children }: { children: ReactNode }) {
   return (
-    <div className="min-h-screen bg-black relative pt-24 text-white">
-      {/* Cosmic Nebula Background */}
+    <div className="relative min-h-svh bg-obsidian text-bone">
       <PublicBackground />
-      
-      <div className="relative z-10">
+
+      <div className="relative z-10 flex min-h-svh flex-col">
+        <ScrollProgress className="h-px bg-bone/60" />
         <PublicHeader />
-        {children}
-        <footer className="border-t border-white/30 py-4 mt-3 text-center text-sm text-neutral-400">
-          Built for competitive programmers.
-          <span className="font-medium text-white underline px-2">Built by <a href="https://github.com/LeveL-P1">P1</a>.  </span>  
-        </footer>
+        <main className="flex-1 pt-16">{children}</main>
+        <SiteFooter />
       </div>
     </div>
   );

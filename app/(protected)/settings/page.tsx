@@ -2,13 +2,15 @@
 
 import { useState } from "react";
 import toast from "react-hot-toast";
+
 import { AccountSettingsForm } from "@/components/settings/AccountSettingsForm";
 import { DangerZoneCard } from "@/components/settings/DangerZoneCard";
 import { NotificationSettingsForm } from "@/components/settings/NotificationSettingsForm";
 import { PrivacySettingsForm } from "@/components/settings/PrivacySettingsForm";
 import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/section-header";
+import { Surface } from "@/components/ui/surface";
 import { useUserSettings } from "@/hooks/useUserSettings";
-import { Settings as SettingsIcon, Save, Sparkles } from "lucide-react";
 
 export default function SettingsPage() {
   const { settings, setSettings, saveSettings, loading, error } = useUserSettings();
@@ -18,7 +20,7 @@ export default function SettingsPage() {
     setSaving(true);
     try {
       await saveSettings(settings);
-      toast.success("Settings saved successfully");
+      toast.success("Settings saved");
     } catch {
       toast.error("Could not save settings");
     } finally {
@@ -27,55 +29,48 @@ export default function SettingsPage() {
   };
 
   return (
-    <div className="max-w-4xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      {/* Settings Header */}
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
+    <div className="mx-auto flex w-full max-w-[900px] flex-col gap-8">
+      <header className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
-          <div className="flex items-center gap-2 text-indigo-400 font-bold text-xs uppercase tracking-[0.2em] mb-2">
-            <SettingsIcon size={14} />
-            <span>Preferences</span>
-          </div>
-          <h1 className="text-4xl font-extrabold text-white tracking-tight">
-            Account <span className="bg-gradient-to-r from-indigo-400 to-purple-400 bg-clip-text text-transparent">Settings</span>
+          <Eyebrow>Preferences</Eyebrow>
+          <h1 className="mt-3 text-[32px] font-light leading-[1.1] tracking-[-0.64px] text-chalk md:text-[40px] md:tracking-[-0.8px]">
+            Settings
           </h1>
-          <p className="mt-2 text-neutral-400 max-w-lg">
-            Manage your account preferences, notifications, and privacy controls.
+          <p className="mt-3 max-w-[52ch] text-body-sm text-ash">
+            Notification preferences and who can see your unified record.
           </p>
         </div>
-        <Button 
-          onClick={onSave} 
-          disabled={saving}
-          className="bg-indigo-600 hover:bg-indigo-500 text-white rounded-xl px-6 py-6 h-auto font-bold shadow-lg shadow-indigo-500/20 transition-all gap-2"
-        >
-          <Save size={18} />
-          {saving ? "Saving Changes..." : "Save All Changes"}
+
+        <Button size="lg" onClick={onSave} disabled={saving || loading}>
+          {saving ? "Saving…" : "Save changes"}
         </Button>
-      </div>
+      </header>
+
+      {error ? (
+        <Surface className="flex items-center gap-3 border-destructive/30 py-4">
+          <span className="size-1.5 shrink-0 rounded-full bg-destructive" />
+          <p className="text-body-sm text-bone">{error}</p>
+        </Surface>
+      ) : null}
 
       {loading ? (
-        <div className="flex items-center gap-3 text-neutral-500 py-12 justify-center">
-          <div className="w-5 h-5 border-2 border-indigo-500 border-t-transparent rounded-full animate-spin" />
-          <span>Loading your preferences...</span>
+        <div className="flex flex-col gap-6">
+          {[0, 1, 2].map((index) => (
+            <div key={index} className="h-44 animate-pulse rounded-card bg-carbon" />
+          ))}
         </div>
-      ) : null}
-      
-      {error ? (
-        <div className="p-4 bg-red-500/10 border border-red-500/20 rounded-2xl text-red-400 text-sm flex items-center gap-3">
-          <div className="w-2 h-2 bg-red-500 rounded-full" />
-          {error}
-        </div>
-      ) : null}
+      ) : (
+        <div className="flex flex-col gap-6 pb-6">
+          <AccountSettingsForm />
 
-      <div className="grid gap-8 pb-12">
-        <AccountSettingsForm />
-        
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
-          <NotificationSettingsForm settings={settings} onChange={setSettings} />
-          <PrivacySettingsForm settings={settings} onChange={setSettings} />
-        </div>
+          <div className="grid gap-6 lg:grid-cols-2">
+            <NotificationSettingsForm settings={settings} onChange={setSettings} />
+            <PrivacySettingsForm settings={settings} onChange={setSettings} />
+          </div>
 
-        <DangerZoneCard />
-      </div>
+          <DangerZoneCard />
+        </div>
+      )}
     </div>
   );
 }

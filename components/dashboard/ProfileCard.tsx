@@ -1,6 +1,12 @@
-import { SectionCard } from "@/components/ui/SectionCard";
-import { User, Copy, ExternalLink, ShieldCheck } from "lucide-react";
-import { toast } from "react-hot-toast";
+"use client";
+
+import { useState } from "react";
+import { Check, Copy, ExternalLink } from "lucide-react";
+import toast from "react-hot-toast";
+
+import { Surface } from "@/components/ui/surface";
+import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/section-header";
 
 interface ProfileCardProps {
   username: string;
@@ -9,61 +15,65 @@ interface ProfileCardProps {
 }
 
 export function ProfileCard({ username, fullName, bio }: ProfileCardProps) {
-  const publicUrl = `unicc.com/u/${username}`;
+  const [copied, setCopied] = useState(false);
 
-  const copyUrl = () => {
-    navigator.clipboard.writeText(publicUrl);
-    toast.success("URL copied to clipboard!");
+  /** Build from the real origin — never a hardcoded domain. */
+  const path = `/u/${username}`;
+  const displayUrl =
+    typeof window === "undefined"
+      ? path
+      : `${window.location.host}${path}`;
+
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(`${window.location.origin}${path}`);
+      setCopied(true);
+      toast.success("Profile link copied");
+      setTimeout(() => setCopied(false), 2000);
+    } catch {
+      toast.error("Could not copy the link");
+    }
   };
 
+  const initials = fullName
+    .split(" ")
+    .map((part) => part[0])
+    .filter(Boolean)
+    .slice(0, 2)
+    .join("")
+    .toUpperCase();
+
   return (
-    <SectionCard className="md:col-span-2 relative overflow-hidden group">
-      {/* Abstract Background Decoration */}
-      <div className="absolute -right-8 -top-8 w-32 h-32 bg-indigo-600/10 rounded-full blur-3xl group-hover:bg-indigo-600/20 transition-colors" />
-      
-      <div className="relative flex flex-col md:flex-row md:items-center gap-6">
-        <div className="relative">
-          <div className="w-24 h-24 rounded-3xl bg-gradient-to-br from-indigo-500 to-purple-600 p-[2px]">
-            <div className="w-full h-full rounded-[22px] bg-[#0b0b12] flex items-center justify-center">
-              <User size={40} className="text-white" />
-            </div>
-          </div>
-          <div className="absolute -bottom-2 -right-2 bg-emerald-500 rounded-full p-1 border-4 border-[#0b0b12]">
-            <ShieldCheck size={14} className="text-white" />
-          </div>
-        </div>
-
-        <div className="flex-1">
-          <div className="flex items-center gap-2">
-            <h2 className="text-2xl font-bold text-white">{fullName}</h2>
-            <span className="px-2 py-0.5 rounded-full bg-indigo-500/10 text-indigo-400 text-[10px] font-bold uppercase tracking-wider border border-indigo-500/20">
-              Pro Member
-            </span>
-          </div>
-          <p className="text-neutral-400 font-medium">@{username}</p>
-          <p className="mt-3 text-neutral-300 text-sm max-w-md line-clamp-2">
-            {bio}
-          </p>
-        </div>
-
-        <div className="flex flex-col gap-2 min-w-[140px]">
-          <button 
-            onClick={copyUrl}
-            className="flex items-center justify-between px-4 py-2 bg-white/5 hover:bg-white/10 rounded-xl border border-white/5 transition-all text-sm group/btn"
-          >
-            <span className="text-neutral-400 group-hover/btn:text-white transition-colors">Copy URL</span>
-            <Copy size={14} className="text-neutral-500" />
-          </button>
-          <a 
-            href={`/u/${username}`}
-            target="_blank"
-            className="flex items-center justify-between px-4 py-2 bg-indigo-600/10 hover:bg-indigo-600/20 rounded-xl border border-indigo-500/20 transition-all text-sm group/link"
-          >
-            <span className="text-indigo-400 font-medium">View Page</span>
-            <ExternalLink size={14} className="text-indigo-400" />
-          </a>
-        </div>
+    <Surface className="flex flex-col gap-6 sm:flex-row sm:items-center">
+      <div className="flex size-14 shrink-0 items-center justify-center rounded-pill bg-tar text-[16px] font-light text-bone hairline">
+        {initials || "—"}
       </div>
-    </SectionCard>
+
+      <div className="min-w-0 flex-1">
+        <Eyebrow>Public profile</Eyebrow>
+        <p className="mt-2 truncate text-subheading font-light text-chalk">
+          {fullName}
+        </p>
+        <p className="mt-1 truncate font-mono text-[11px] tracking-[0.06em] text-smoke">
+          {displayUrl}
+        </p>
+        {bio ? (
+          <p className="mt-3 line-clamp-2 max-w-[46ch] text-[13px] text-ash">{bio}</p>
+        ) : null}
+      </div>
+
+      <div className="flex shrink-0 gap-2">
+        <Button variant="ghost" size="sm" onClick={copy}>
+          {copied ? <Check size={14} /> : <Copy size={14} />}
+          {copied ? "Copied" : "Copy link"}
+        </Button>
+        <Button asChild variant="surface" size="sm">
+          <a href={path} target="_blank" rel="noreferrer">
+            View
+            <ExternalLink size={13} />
+          </a>
+        </Button>
+      </div>
+    </Surface>
   );
 }

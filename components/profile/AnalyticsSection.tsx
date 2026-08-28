@@ -1,35 +1,46 @@
 import type { DetailedStats } from "@/types/stats";
-import { SectionCard } from "@/components/ui/SectionCard";
+import { Surface } from "@/components/ui/surface";
+import { Eyebrow } from "@/components/ui/section-header";
+import { DifficultyMix } from "@/components/dashboard/DifficultyMix";
 import { LimitedViewOverlay } from "@/components/profile/LimitedViewOverlay";
+import { ActivityHeatmap } from "@/components/profile/ActivityHeatmap";
 
-export function AnalyticsSection({ detailedStats, unlocked }: { detailedStats: DetailedStats; unlocked: boolean }) {
+export function AnalyticsSection({
+  detailedStats,
+  unlocked,
+}: {
+  detailedStats: DetailedStats;
+  unlocked: boolean;
+}) {
   return (
-    <div className="relative">
-      <SectionCard title="Detailed Analytics">
-        <div className="grid gap-4 md:grid-cols-2">
-          <div className="rounded-xl border border-border bg-background p-4">
-            <p className="text-sm font-medium">Activity Heatmap</p>
-            <div className="mt-3 grid grid-cols-7 gap-1">
-              {detailedStats.heatmap.slice(0, 28).map((day) => (
-                <div
-                  key={day.date}
-                  className="h-4 w-4 rounded-sm"
-                  style={{ backgroundColor: `rgba(255,107,53,${0.15 + day.count * 0.2})` }}
-                />
-              ))}
-            </div>
+    <section aria-labelledby="analytics-heading" className="relative">
+      <div className="mb-6">
+        <Eyebrow>Analytics</Eyebrow>
+        <h2
+          id="analytics-heading"
+          className="mt-2 text-heading-sm font-light text-chalk"
+        >
+          The shape of the practice
+        </h2>
+      </div>
+
+      <div className="grid gap-4 lg:grid-cols-[minmax(0,1.6fr)_minmax(0,1fr)]">
+        <Surface>
+          <Eyebrow>Activity</Eyebrow>
+          <div className="mt-5">
+            <ActivityHeatmap days={detailedStats.heatmap} />
           </div>
-          <div className="rounded-xl border border-border bg-background p-4">
-            <p className="text-sm font-medium">Difficulty Mix</p>
-            <ul className="mt-3 space-y-2 text-sm">
-              <li>Easy: {detailedStats.difficultyDistribution.easy}</li>
-              <li>Medium: {detailedStats.difficultyDistribution.medium}</li>
-              <li>Hard: {detailedStats.difficultyDistribution.hard}</li>
-            </ul>
+        </Surface>
+
+        <Surface>
+          <Eyebrow>Difficulty mix</Eyebrow>
+          <div className="mt-5">
+            <DifficultyMix distribution={detailedStats.difficultyDistribution} />
           </div>
-        </div>
-      </SectionCard>
+        </Surface>
+      </div>
+
       {!unlocked ? <LimitedViewOverlay /> : null}
-    </div>
+    </section>
   );
 }

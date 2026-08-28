@@ -1,238 +1,240 @@
-'use client'
+"use client";
 
-import { useState } from 'react'
-import { motion } from 'framer-motion'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
-import { Textarea } from '@/components/ui/textarea'
-import { Button } from '@/components/ui/button'
-import { cn } from '@/lib/utils'
+import { useMemo, useState } from "react";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 
 interface SessionFormProps {
-  onSubmit: (data: SessionFormData) => Promise<void>
-  onCancel: () => void
-  initialData?: SessionFormData
-  isEdit?: boolean
+  onSubmit: (data: SessionFormData) => Promise<void>;
+  onCancel: () => void;
+  initialData?: SessionFormData;
+  isEdit?: boolean;
 }
 
 export interface SessionFormData {
-  date: string
-  platform: string
-  problemsSolved: number
-  easy: number
-  medium: number
-  hard: number
-  timeSpentMinutes: number
-  topics: string[]
-  notes: string
+  date: string;
+  platform: string;
+  problemsSolved: number;
+  easy: number;
+  medium: number;
+  hard: number;
+  timeSpentMinutes: number;
+  topics: string[];
+  notes: string;
 }
 
 const PLATFORMS = [
-  'LEETCODE',
-  'CODEFORCES',
-  'CODECHEF',
-  'GEEKSFORGEEKS',
-  'HACKERRANK',
-  'ATCODER',
-  'OTHER'
-]
+  "LEETCODE",
+  "CODEFORCES",
+  "CODECHEF",
+  "GEEKSFORGEEKS",
+  "HACKERRANK",
+  "ATCODER",
+  "OTHER",
+];
 
 const COMMON_TOPICS = [
-  'array', 'string', 'hash-table', 'dynamic-programming',
-  'math', 'sorting', 'greedy', 'depth-first-search',
-  'binary-search', 'breadth-first-search', 'tree', 'matrix',
-  'two-pointers', 'binary-tree', 'heap', 'stack',
-  'graph', 'sliding-window', 'backtracking', 'linked-list'
-]
+  "array", "string", "hash-table", "dynamic-programming",
+  "math", "sorting", "greedy", "depth-first-search",
+  "binary-search", "breadth-first-search", "tree", "matrix",
+  "two-pointers", "binary-tree", "heap", "stack",
+  "graph", "sliding-window", "backtracking", "linked-list",
+];
 
-export function SessionForm({ onSubmit, onCancel, initialData, isEdit = false }: SessionFormProps) {
-  const [loading, setLoading] = useState(false)
+const DIFFICULTIES = [
+  { key: "easy", label: "Easy", signal: "var(--color-signal-green)" },
+  { key: "medium", label: "Medium", signal: "var(--color-signal-orange)" },
+  { key: "hard", label: "Hard", signal: "var(--color-signal-violet)" },
+] as const;
+
+export function SessionForm({
+  onSubmit,
+  onCancel,
+  initialData,
+  isEdit = false,
+}: SessionFormProps) {
+  const [loading, setLoading] = useState(false);
+  const [errors, setErrors] = useState<Record<string, string>>({});
   const [formData, setFormData] = useState<SessionFormData>(
-    initialData || {
-      date: new Date().toISOString().split('T')[0],
-      platform: 'LEETCODE',
+    initialData ?? {
+      date: new Date().toISOString().split("T")[0],
+      platform: "LEETCODE",
       problemsSolved: 0,
       easy: 0,
       medium: 0,
       hard: 0,
       timeSpentMinutes: 0,
       topics: [],
-      notes: ''
+      notes: "",
     }
-  )
+  );
 
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
+  const total = useMemo(
+    () => formData.easy + formData.medium + formData.hard,
+    [formData.easy, formData.medium, formData.hard]
+  );
 
-    // Validation
-    const totalProblems = formData.easy + formData.medium + formData.hard
+  /** Inline field errors — never a blocking window.alert. */
+  const validate = () => {
+    const next: Record<string, string> = {};
+    if (total === 0) next.problems = "Add at least one problem.";
+    if (formData.timeSpentMinutes <= 0) next.time = "Enter the time spent.";
+    if (formData.topics.length === 0) next.topics = "Pick at least one topic.";
+    setErrors(next);
+    return Object.keys(next).length === 0;
+  };
 
-    if (totalProblems === 0) {
-      alert('Please add at least one problem (easy, medium, or hard)')
-      return
-    }
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
+    if (!validate()) return;
 
-    if (formData.timeSpentMinutes === 0) {
-      alert('Please enter time spent (must be greater than 0)')
-      return
-    }
-
-    if (formData.topics.length === 0) {
-      alert('Please select at least one topic')
-      return
-    }
-
-    setLoading(true)
+    setLoading(true);
     try {
-      await onSubmit(formData)
+      await onSubmit(formData);
     } finally {
-      setLoading(false)
+      setLoading(false);
     }
-  }
-  
-  const handleTopicToggle = (topic: string) => {
-    setFormData(prev => ({
+  };
+
+  const toggleTopic = (topic: string) => {
+    setFormData((prev) => ({
       ...prev,
       topics: prev.topics.includes(topic)
-        ? prev.topics.filter(t => t !== topic)
-        : [...prev.topics, topic]
-    }))
-  }
+        ? prev.topics.filter((value) => value !== topic)
+        : [...prev.topics, topic],
+    }));
+    setErrors((prev) => ({ ...prev, topics: "" }));
+  };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-6">
-      {/* Date & Platform */}
+    <form onSubmit={handleSubmit} className="flex flex-col gap-7">
       <div className="grid grid-cols-2 gap-4">
-        <div className="space-y-2">
-          <Label htmlFor="date">Date</Label>
+        <Field label="Date" htmlFor="date">
           <Input
             id="date"
             type="date"
-            value={formData.date}
-            onChange={(e) => setFormData({ ...formData, date: e.target.value })}
             required
+            value={formData.date}
+            onChange={(event) =>
+              setFormData({ ...formData, date: event.target.value })
+            }
           />
-        </div>
+        </Field>
 
-        <div className="space-y-2">
-          <Label htmlFor="platform">Platform</Label>
+        <Field label="Platform" htmlFor="platform">
           <select
             id="platform"
-            value={formData.platform}
-            onChange={(e) => setFormData({ ...formData, platform: e.target.value })}
             required
-            className="flex h-10 w-full rounded-lg border border-input bg-orange-600 px-3 py-2 text-base ring-offset-background focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring transition-all md:text-sm"
+            value={formData.platform}
+            onChange={(event) =>
+              setFormData({ ...formData, platform: event.target.value })
+            }
+            className="h-10 w-full rounded-input border border-[rgba(212,208,201,0.16)] bg-tar px-3 text-body-sm text-bone transition-colors focus-visible:border-bone focus-visible:outline-none"
           >
-            {PLATFORMS.map(platform => (
-              <option key={platform} value={platform}>{platform}</option>
+            {PLATFORMS.map((platform) => (
+              <option key={platform} value={platform} className="bg-carbon">
+                {platform}
+              </option>
             ))}
           </select>
-        </div>
+        </Field>
       </div>
 
-      {/* Difficulty Distribution */}
-      <div className="space-y-3">
-        <Label>Problems by Difficulty</Label>
-        <div className="grid grid-cols-3 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="easy" className="text-green-500">Easy</Label>
-            <Input
-              id="easy"
-              type="number"
-              min="0"
-              value={formData.easy}
-              onChange={(e) => setFormData({ ...formData, easy: parseInt(e.target.value) || 0 })}
-              className="focus-visible:ring-green-500"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="medium" className="text-yellow-500">Medium</Label>
-            <Input
-              id="medium"
-              type="number"
-              min="0"
-              value={formData.medium}
-              onChange={(e) => setFormData({ ...formData, medium: parseInt(e.target.value) || 0 })}
-              className="focus-visible:ring-yellow-500"
-            />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="hard" className="text-red-500">Hard</Label>
-            <Input
-              id="hard"
-              type="number"
-              min="0"
-              value={formData.hard}
-              onChange={(e) => setFormData({ ...formData, hard: parseInt(e.target.value) || 0 })}
-              className="focus-visible:ring-red-500"
-            />
-          </div>
+      <Field label="Problems by difficulty" error={errors.problems}>
+        <div className="grid grid-cols-3 gap-3">
+          {DIFFICULTIES.map((difficulty) => (
+            <div key={difficulty.key} className="flex flex-col gap-2">
+              <span className="flex items-center gap-1.5 text-[11px] text-ash">
+                <span
+                  className="size-1.5 rounded-full"
+                  style={{ background: difficulty.signal }}
+                />
+                {difficulty.label}
+              </span>
+              <Input
+                type="number"
+                min="0"
+                aria-label={difficulty.label}
+                value={formData[difficulty.key]}
+                onChange={(event) => {
+                  setFormData({
+                    ...formData,
+                    [difficulty.key]: parseInt(event.target.value, 10) || 0,
+                  });
+                  setErrors((prev) => ({ ...prev, problems: "" }));
+                }}
+              />
+            </div>
+          ))}
         </div>
-        <p className="text-xs text-muted-foreground mt-2">
-          Total: {formData.easy + formData.medium + formData.hard} problems
+        <p className="mt-3 font-mono text-[10px] uppercase tracking-[0.1em] text-smoke">
+          Total {total}
         </p>
-      </div>
+      </Field>
 
-      {/* Time Spent */}
-      <div className="space-y-2">
-        <Label htmlFor="time">Time Spent (minutes)</Label>
+      <Field label="Time spent (minutes)" htmlFor="time" error={errors.time}>
         <Input
           id="time"
           type="number"
           min="0"
           value={formData.timeSpentMinutes}
-          onChange={(e) => setFormData({ ...formData, timeSpentMinutes: parseInt(e.target.value) || 0 })}
+          onChange={(event) => {
+            setFormData({
+              ...formData,
+              timeSpentMinutes: parseInt(event.target.value, 10) || 0,
+            });
+            setErrors((prev) => ({ ...prev, time: "" }));
+          }}
         />
-      </div>
+      </Field>
 
-      {/* Topics */}
-      <div className="space-y-3">
-        <Label>Topics Practiced</Label>
-        <div className="flex flex-wrap gap-3">
-          {COMMON_TOPICS.map(topic => (
-            <motion.button
-              key={topic}
-              type="button"
-              onClick={() => handleTopicToggle(topic)}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              className={cn(
-                "px-3 py-1.5 rounded-lg text-xs font-medium transition-colors",
-                formData.topics.includes(topic)
-                  ? "bg-orange-600 text-primary-foreground shadow-sm"
-                  : "bg-secondary text-muted-foreground hover:bg-accent hover:text-foreground"
-              )}
-            >
-              {topic}
-            </motion.button>
-          ))}
+      <Field label="Topics practised" error={errors.topics}>
+        <div className="flex flex-wrap gap-1.5">
+          {COMMON_TOPICS.map((topic) => {
+            const active = formData.topics.includes(topic);
+            return (
+              <button
+                key={topic}
+                type="button"
+                onClick={() => toggleTopic(topic)}
+                aria-pressed={active}
+                className={cn(
+                  "rounded-pill px-2.5 py-1 text-[11px] transition-colors",
+                  active
+                    ? "bg-bone text-obsidian"
+                    : "bg-tar text-ash hover:text-bone border border-[rgba(212,208,201,0.12)]"
+                )}
+              >
+                {topic}
+              </button>
+            );
+          })}
         </div>
-      </div>
+      </Field>
 
-      {/* Notes */}
-      <div className="space-y-2">
-        <Label htmlFor="notes">Notes (Optional)</Label>
+      <Field label="Notes (optional)" htmlFor="notes">
         <Textarea
           id="notes"
-          value={formData.notes}
-          onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
           rows={4}
-          placeholder="Any thoughts, learnings, or observations..."
+          value={formData.notes}
+          onChange={(event) =>
+            setFormData({ ...formData, notes: event.target.value })
+          }
+          placeholder="Thoughts, learnings, what to revisit…"
         />
-      </div>
+      </Field>
 
-      {/* Actions */}
-      <div className="flex gap-3 pt-6">
-        <Button
-          type="submit"
-          disabled={loading}
-          className="flex-1"
-        >
-          {loading ? 'Saving...' : isEdit ? 'Update Session' : 'Add Session'}
+      <div className="flex gap-2 border-t border-[rgba(212,208,201,0.12)] pt-6">
+        <Button type="submit" size="lg" disabled={loading} className="flex-1">
+          {loading ? "Saving…" : isEdit ? "Update session" : "Add session"}
         </Button>
         <Button
           type="button"
-          variant="outline"
+          size="lg"
+          variant="ghost"
           onClick={onCancel}
           disabled={loading}
         >
@@ -240,5 +242,29 @@ export function SessionForm({ onSubmit, onCancel, initialData, isEdit = false }:
         </Button>
       </div>
     </form>
-  )
+  );
+}
+
+function Field({
+  label,
+  htmlFor,
+  error,
+  children,
+}: {
+  label: string;
+  htmlFor?: string;
+  error?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className="flex flex-col gap-2.5">
+      <Label htmlFor={htmlFor}>{label}</Label>
+      {children}
+      {error ? (
+        <p role="alert" className="text-[12px] text-destructive">
+          {error}
+        </p>
+      ) : null}
+    </div>
+  );
 }

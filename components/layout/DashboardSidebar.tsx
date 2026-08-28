@@ -1,20 +1,24 @@
 "use client";
 
+import { useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { cn } from "@/lib/utils";
-import { 
-  LayoutDashboard, 
-  Settings, 
-  Search, 
-  PlusCircle,
+import { motion, AnimatePresence } from "framer-motion";
+import {
+  LayoutDashboard,
+  ListChecks,
+  Search,
+  Settings,
+  Plus,
   Menu,
   X,
-  ListChecks
 } from "lucide-react";
-import { useState } from "react";
 
-const menuItems = [
+import { Logo } from "@/components/layout/Logo";
+import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
+
+const NAV = [
   { name: "Overview", icon: LayoutDashboard, href: "/dashboard" },
   { name: "Sessions", icon: ListChecks, href: "/sessions" },
   { name: "Search", icon: Search, href: "/search" },
@@ -23,77 +27,103 @@ const menuItems = [
 
 export function DashboardSidebar() {
   const pathname = usePathname();
-  const [isOpen, setIsOpen] = useState(false);
+  const [open, setOpen] = useState(false);
 
   return (
     <>
-      {/* Mobile Menu Toggle */}
-      <button 
-        onClick={() => setIsOpen(!isOpen)}
-        className="fixed top-4 left-4 z-50 md:hidden p-2 bg-white/5 border border-white/10 rounded-lg backdrop-blur-md"
+      {/* Mobile trigger */}
+      <button
+        type="button"
+        onClick={() => setOpen(true)}
+        aria-label="Open navigation"
+        className="fixed left-4 top-3.5 z-50 flex size-9 items-center justify-center rounded-pill bg-carbon text-bone hairline backdrop-blur-xl md:hidden"
       >
-        {isOpen ? <X size={20} /> : <Menu size={20} />}
+        <Menu size={17} />
       </button>
 
-      {/* Sidebar Overlay for Mobile */}
-      {isOpen && (
-        <div 
-          className="fixed inset-0 z-40 bg-black/60 backdrop-blur-sm md:hidden"
-          onClick={() => setIsOpen(false)}
-        />
-      )}
+      <AnimatePresence>
+        {open ? (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={() => setOpen(false)}
+            className="fixed inset-0 z-40 bg-obsidian/80 backdrop-blur-sm md:hidden"
+          />
+        ) : null}
+      </AnimatePresence>
 
-      {/* Sidebar */}
-      <aside className={cn(
-        "fixed inset-y-0 left-0 z-40 w-64 transform bg-[#0b0b12]/80 backdrop-blur-xl border-r border-white/5 transition-transform duration-300 ease-in-out md:translate-x-0",
-        isOpen ? "translate-x-0" : "-translate-x-full"
-      )}>
-        <div className="flex flex-col h-full">
-          {/* Logo Section */}
-          <div className="p-6">
-            <Link href="/" className="flex items-center gap-2">
-              <div className="w-8 h-8 bg-gradient-to-br from-indigo-500 to-purple-600 rounded-lg flex items-center justify-center text-white font-bold text-xl">
-                U
-              </div>
-              <span className="text-xl font-bold bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
-                UniCC
-              </span>
-            </Link>
-          </div>
+      <aside
+        className={cn(
+          "fixed inset-y-0 left-0 z-50 flex w-64 flex-col bg-tar transition-transform duration-300 ease-[cubic-bezier(0.16,1,0.3,1)]",
+          "border-r border-[rgba(212,208,201,0.12)]",
+          open ? "translate-x-0" : "-translate-x-full md:translate-x-0"
+        )}
+      >
+        <div className="flex h-16 shrink-0 items-center justify-between px-6 hairline-b">
+          <Link href="/" aria-label="UNICC home">
+            <Logo />
+          </Link>
+          <button
+            type="button"
+            onClick={() => setOpen(false)}
+            aria-label="Close navigation"
+            className="flex size-8 items-center justify-center rounded-pill text-ash hover:text-chalk md:hidden"
+          >
+            <X size={16} />
+          </button>
+        </div>
 
-          {/* Navigation Links */}
-          <nav className="flex-1 px-4 py-4 space-y-1">
-            {menuItems.map((item) => {
-              const isActive = pathname === item.href;
+        <nav className="flex-1 overflow-y-auto px-3 py-6">
+          <p className="eyebrow px-3 pb-3">Workspace</p>
+          <ul className="flex flex-col gap-0.5">
+            {NAV.map((item) => {
+              const active =
+                pathname === item.href || pathname.startsWith(`${item.href}/`);
+
               return (
-                <Link
-                  key={item.name}
-                  href={item.href}
-                  onClick={() => setIsOpen(false)}
-                  className={cn(
-                    "flex items-center gap-3 px-4 py-3 rounded-xl transition-all duration-200 group",
-                    isActive 
-                      ? "bg-white/10 text-white border border-white/10 shadow-lg shadow-indigo-500/10" 
-                      : "text-neutral-400 hover:text-white hover:bg-white/5 border border-transparent"
-                  )}
-                >
-                  <item.icon size={20} className={cn(
-                    "transition-colors",
-                    isActive ? "text-indigo-400" : "text-neutral-500 group-hover:text-neutral-300"
-                  )} />
-                  <span className="font-medium text-sm">{item.name}</span>
-                </Link>
+                <li key={item.name}>
+                  <Link
+                    href={item.href}
+                    onClick={() => setOpen(false)}
+                    aria-current={active ? "page" : undefined}
+                    className={cn(
+                      "group relative flex items-center gap-3 rounded-icon px-3 py-2.5 text-[13px] transition-colors",
+                      active
+                        ? "bg-carbon text-chalk"
+                        : "text-ash hover:bg-carbon/60 hover:text-bone"
+                    )}
+                  >
+                    {/* Active marker: a Bone rule, not a colour wash. */}
+                    {active ? (
+                      <motion.span
+                        layoutId="sidebar-active"
+                        className="absolute inset-y-1.5 left-0 w-[2px] rounded-full bg-bone"
+                        transition={{ type: "spring", stiffness: 400, damping: 34 }}
+                      />
+                    ) : null}
+                    <item.icon
+                      size={16}
+                      className={cn(
+                        "shrink-0 transition-colors",
+                        active ? "text-bone" : "text-smoke group-hover:text-ash"
+                      )}
+                    />
+                    {item.name}
+                  </Link>
+                </li>
               );
             })}
-          </nav>
+          </ul>
+        </nav>
 
-          {/* Profile Quick Link / Actions */}
-          <div className="p-4 border-t border-white/5">
-            <Link href="/settings" className="flex items-center gap-3 w-full px-4 py-3 bg-indigo-600/10 hover:bg-indigo-600/20 text-indigo-400 rounded-xl border border-indigo-500/20 transition-all">
-              <PlusCircle size={20} />
-              <span className="font-medium text-sm">Add Platform</span>
+        <div className="shrink-0 p-3 hairline-t">
+          <Button asChild variant="surface" size="lg" className="w-full justify-start">
+            <Link href="/settings" onClick={() => setOpen(false)}>
+              <Plus size={15} />
+              Link a platform
             </Link>
-          </div>
+          </Button>
         </div>
       </aside>
     </>

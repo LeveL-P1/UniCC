@@ -1,52 +1,202 @@
 @import "tailwindcss";
-@tailwind utilities;
 
-:root {
-  --background: 240 10% 4%;
-  --foreground: 210 40% 98%;
-  --card: 240 6% 10%;
-  --card-foreground: 210 40% 98%;
-  --popover: 240 10% 4%;
-  --popover-foreground: 210 40% 98%;
-  --primary: 18 100% 61%;
-  --primary-foreground: 0 0% 100%;
-  --secondary: 240 5% 18%;
-  --secondary-foreground: 210 40% 98%;
-  --muted: 240 5% 18%;
-  --muted-foreground: 240 5% 65%;
-  --accent: 240 5% 16%;
-  --accent-foreground: 210 40% 98%;
-  --destructive: 0 84% 60%;
-  --destructive-foreground: 0 0% 98%;
-  --border: 240 5% 22%;
-  --input: 240 5% 22%;
-  --ring: 18 100% 61%;
-  --radius: 0.75rem;
+@custom-variant dark (&:is(.dark *));
+
+/* ============================================================
+   HENRY DESIGN SYSTEM — darkroom gallery at midnight
+   Tailwind v4 theme. Tokens live HERE, not in tailwind.config.
+   ============================================================ */
+
+@theme {
+  /* --- Palette --- */
+  --color-obsidian: #000000;
+  --color-tar: #0c0c0c;
+  --color-carbon: #141414;
+  --color-bone: #d4d0c9;
+  --color-ash: #878581;
+  --color-smoke: #615f5c;
+  --color-pearl: #d9d9d9;
+  --color-graphite: #a1a1a1;
+  --color-chalk: #ffffff;
+
+  /* --- Chromatic accents: RATIONED. Stat bars and data viz only. --- */
+  --color-signal-green: #1fe274;
+  --color-signal-blue: #00a8f0;
+  --color-signal-orange: #ff9634;
+  --color-signal-violet: #a76fdd;
+
+  /* --- Semantic aliases so bg-card / text-muted-foreground / border-border work --- */
+  --color-background: #000000;
+  --color-foreground: #d4d0c9;
+  --color-card: #141414;
+  --color-card-foreground: #d4d0c9;
+  --color-popover: #0c0c0c;
+  --color-popover-foreground: #d4d0c9;
+  --color-primary: #d4d0c9;
+  --color-primary-foreground: #000000;
+  --color-secondary: #141414;
+  --color-secondary-foreground: #d4d0c9;
+  --color-muted: #0c0c0c;
+  --color-muted-foreground: #878581;
+  --color-accent: #141414;
+  --color-accent-foreground: #d4d0c9;
+  --color-destructive: #e05252;
+  --color-destructive-foreground: #ffffff;
+  --color-border: rgba(212, 208, 201, 0.12);
+  --color-input: rgba(212, 208, 201, 0.16);
+  --color-ring: #d4d0c9;
+
+  /* --- Typography. NB International Pro -> Inter (geometric humanist substitute) --- */
+  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+    "Segoe UI", Roboto, sans-serif;
+  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo,
+    Consolas, monospace;
+
+  /* --- Type scale. Tracking tightens aggressively as size grows. --- */
+  --text-caption: 10px;
+  --text-caption--line-height: 1.2;
+  --text-caption--letter-spacing: 0.02em;
+
+  --text-body-sm: 14px;
+  --text-body-sm--line-height: 1.5;
+  --text-body-sm--letter-spacing: -0.28px;
+
+  --text-body: 16px;
+  --text-body--line-height: 1.5;
+  --text-body--letter-spacing: -0.32px;
+
+  --text-subheading: 20px;
+  --text-subheading--line-height: 1.33;
+  --text-subheading--letter-spacing: -0.4px;
+
+  --text-heading-sm: 24px;
+  --text-heading-sm--line-height: 1.25;
+  --text-heading-sm--letter-spacing: -0.48px;
+
+  --text-heading: 32px;
+  --text-heading--line-height: 1.2;
+  --text-heading--letter-spacing: -0.64px;
+
+  --text-heading-lg: 64px;
+  --text-heading-lg--line-height: 1;
+  --text-heading-lg--letter-spacing: -1.28px;
+
+  --text-display: 96px;
+  --text-display--line-height: 1;
+  --text-display--letter-spacing: -1.92px;
+
+  /* --- Radii. Pills are non-negotiable at 100px. --- */
+  --radius-tag: 2px;
+  --radius-icon: 6px;
+  --radius-input: 6px;
+  --radius-card: 10px;
+  --radius-pill: 100px;
+  --radius-sm: 2px;
+  --radius-md: 6px;
+  --radius-lg: 10px;
+  --radius-xl: 16px;
+  --radius-2xl: 20px;
+  --radius-3xl: 32px;
+
+  /* --- Elevation. One whisper-soft lift. Nothing dramatic. --- */
+  --shadow-subtle: 0 1px 2px 0 rgba(20, 21, 26, 0.05);
+  --shadow-lift: 0 1px 2px 0 rgba(0, 0, 0, 0.6);
+
+  /* --- Motion --- */
+  --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+  --ease-out-quart: cubic-bezier(0.25, 1, 0.5, 1);
+
+  --animate-drift: drift 24s ease-in-out infinite alternate;
+  --animate-pulse-ring: pulse-ring 3s cubic-bezier(0.25, 1, 0.5, 1) infinite;
+
+  @keyframes drift {
+    from {
+      transform: translate3d(0, 0, 0);
+    }
+    to {
+      transform: translate3d(0, -14px, 0);
+    }
+  }
+  @keyframes pulse-ring {
+    0% {
+      opacity: 0.5;
+      transform: scale(0.85);
+    }
+    70%,
+    100% {
+      opacity: 0;
+      transform: scale(1.6);
+    }
+  }
 }
+
+/* Layout rhythm — shared constants, not utilities. */
+:root {
+  --page-max-width: 1200px;
+  --section-gap: 80px;
+  --card-padding: 24px;
+  --nav-height: 64px;
+}
+
+/* ============================================================
+   BASE
+   ============================================================ */
 
 * {
   box-sizing: border-box;
+  border-color: var(--color-border);
+}
+
+html {
+  background-color: var(--color-obsidian);
+  -webkit-text-size-adjust: 100%;
 }
 
 body {
   margin: 0;
   min-height: 100vh;
-  background: hsl(var(--background));
-  color: hsl(var(--foreground));
-  font-family: Cambria, Cochin, Georgia, Times, 'Times New Roman', serif !important;
+  background-color: var(--color-obsidian);
+  color: var(--color-bone);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  letter-spacing: -0.02em;
   font-feature-settings: "rlig" 1, "calt" 1;
   -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
+/* Henry whispers at 300. Bold breaks the editorial register. */
 h1,
 h2,
-h3 {
-  font-family: var(--font-outfit), var(--font-inter), sans-serif;
+h3,
+h4,
+h5,
+h6 {
+  font-family: var(--font-display);
+  font-weight: 300;
   letter-spacing: -0.02em;
+  color: var(--color-chalk);
+  margin: 0;
+}
+
+p {
+  margin: 0;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+::selection {
+  background: var(--color-bone);
+  color: var(--color-obsidian);
 }
 
 *:focus-visible {
-  outline: 2px solid hsl(var(--ring));
+  outline: 1px solid var(--color-bone);
   outline-offset: 2px;
 }
 
@@ -54,20 +204,178 @@ h3 {
   width: 10px;
   height: 10px;
 }
-
 ::-webkit-scrollbar-track {
-  background: hsl(var(--secondary));
+  background: var(--color-obsidian);
 }
-
 ::-webkit-scrollbar-thumb {
-  background: hsl(var(--border));
+  background: var(--color-carbon);
   border-radius: 999px;
+  border: 2px solid var(--color-obsidian);
 }
-
 ::-webkit-scrollbar-thumb:hover {
-  background: hsl(var(--muted-foreground));
+  background: var(--color-smoke);
 }
 
-.text-balance {
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ============================================================
+   PRIMITIVES
+   ============================================================ */
+
+@utility text-balance {
   text-wrap: balance;
+}
+
+/* Hairline at Bone 12% — the system's only divider language. */
+@utility hairline {
+  border: 1px solid rgba(212, 208, 201, 0.12);
+}
+@utility hairline-t {
+  border-top: 1px solid rgba(212, 208, 201, 0.12);
+}
+@utility hairline-b {
+  border-bottom: 1px solid rgba(212, 208, 201, 0.12);
+}
+
+/* Mono section marker (READY / SKILL / PROOF). Plain text, no chip styling. */
+@utility eyebrow {
+  font-family: var(--font-mono);
+  font-size: 10px;
+  line-height: 1.2;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: var(--color-ash);
+}
+
+@utility frame {
+  margin-inline: auto;
+  width: 100%;
+  max-width: var(--page-max-width);
+  padding-inline: 24px;
+}
+
+/* Clerk renders inside our canvas, not its own. */
+.cl-rootBox,
+.cl-card {
+  background: transparent !important;
+  box-shadow: none !important;
+  width: 100% !important;
+}
+
+/* ============================================================
+   MAGIC UI keyframes (managed by the shadcn CLI)
+   ============================================================ */
+
+@theme inline {
+  --animate-marquee: marquee var(--duration) infinite linear;
+  --animate-marquee-vertical: marquee-vertical var(--duration) linear infinite;
+  --animate-shiny-text: shiny-text 8s infinite;
+  --animate-shimmer-slide: shimmer-slide var(--speed) ease-in-out infinite
+    alternate;
+  --animate-spin-around: spin-around calc(var(--speed) * 2) infinite linear;
+  --animate-aurora: aurora 8s ease-in-out infinite alternate;
+  --animate-orbit: orbit calc(var(--duration) * 1s) linear infinite;
+  --animate-ripple: ripple var(--duration, 2s) ease calc(var(--i, 0) * 0.2s)
+    infinite;
+
+  @keyframes marquee {
+    from {
+      transform: translateX(0);
+    }
+    to {
+      transform: translateX(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes marquee-vertical {
+    from {
+      transform: translateY(0);
+    }
+    to {
+      transform: translateY(calc(-100% - var(--gap)));
+    }
+  }
+  @keyframes shiny-text {
+    0%,
+    90%,
+    100% {
+      background-position: calc(-100% - var(--shiny-width)) 0;
+    }
+    30%,
+    60% {
+      background-position: calc(100% + var(--shiny-width)) 0;
+    }
+  }
+  @keyframes shimmer-slide {
+    to {
+      transform: translate(calc(100cqw - 100%), 0);
+    }
+  }
+  @keyframes spin-around {
+    0% {
+      transform: translateZ(0) rotate(0);
+    }
+    15%,
+    35% {
+      transform: translateZ(0) rotate(90deg);
+    }
+    65%,
+    85% {
+      transform: translateZ(0) rotate(270deg);
+    }
+    100% {
+      transform: translateZ(0) rotate(360deg);
+    }
+  }
+  @keyframes aurora {
+    0% {
+      background-position: 0% 50%;
+      transform: rotate(-5deg) scale(0.9);
+    }
+    25% {
+      background-position: 50% 100%;
+      transform: rotate(5deg) scale(1.1);
+    }
+    50% {
+      background-position: 100% 50%;
+      transform: rotate(-3deg) scale(0.95);
+    }
+    75% {
+      background-position: 50% 0%;
+      transform: rotate(3deg) scale(1.05);
+    }
+    100% {
+      background-position: 0% 50%;
+      transform: rotate(-5deg) scale(0.9);
+    }
+  }
+  @keyframes orbit {
+    0% {
+      transform: rotate(calc(var(--angle) * 1deg))
+        translateY(calc(var(--radius) * 1px))
+        rotate(calc(var(--angle) * -1deg));
+    }
+    100% {
+      transform: rotate(calc(var(--angle) * 1deg + 360deg))
+        translateY(calc(var(--radius) * 1px))
+        rotate(calc((var(--angle) * -1deg) - 360deg));
+    }
+  }
+  @keyframes ripple {
+    0%,
+    100% {
+      transform: translate(-50%, -50%) scale(1);
+    }
+    50% {
+      transform: translate(-50%, -50%) scale(0.9);
+    }
+  }
 }

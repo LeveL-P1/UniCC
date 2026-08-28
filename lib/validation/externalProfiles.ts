@@ -11,6 +11,7 @@ export function parseExternalHandle(input: string): string | null {
 }
 
 export function clampRefreshMinutes(value: number | undefined, fallback: number) {
-  if (!Number.isFinite(value)) return fallback;
+  // Number.isFinite does not narrow `number | undefined`, so test explicitly.
+  if (value === undefined || !Number.isFinite(value)) return fallback;
   return Math.min(Math.max(Math.floor(value), 60), 7 * 24 * 60);
 }

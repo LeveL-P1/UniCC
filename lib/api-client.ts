@@ -1,6 +1,15 @@
 import type { PublicProfile, SearchResultProfile, UserSettings } from "@/types/profile";
 import type { DetailedStats, StatOverview } from "@/types/stats";
 import type { PlatformStats } from "@/types/platform";
+import type {
+  AdvancedInsights,
+  AnalyticsRange,
+  Benchmark,
+  OverviewMetrics,
+  PerformanceTrends,
+  PlatformComparisonEntry,
+  RatingTimelinePoint,
+} from "@/types/analytics";
 
 async function unwrap<T>(response: Response): Promise<T> {
   if (!response.ok) {
@@ -50,5 +59,50 @@ export async function updateSettings(settings: UserSettings) {
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(settings),
     })
+  );
+}
+
+/* --------------------------------------------------------------- analytics */
+
+export async function getAnalyticsOverview(signal?: AbortSignal) {
+  return unwrap<{ metrics: OverviewMetrics }>(
+    await fetch("/api/analytics/overview", { signal })
+  );
+}
+
+export async function getPerformanceTrends(signal?: AbortSignal) {
+  return unwrap<{ trends: PerformanceTrends }>(
+    await fetch("/api/analytics/trends", { signal })
+  );
+}
+
+export async function getPlatformComparison(signal?: AbortSignal) {
+  return unwrap<{ comparison: PlatformComparisonEntry[] }>(
+    await fetch("/api/analytics/comparison", { signal })
+  );
+}
+
+export async function getRatingTimeline(signal?: AbortSignal) {
+  return unwrap<{ timeline: RatingTimelinePoint[] }>(
+    await fetch("/api/analytics/rating-timeline", { signal })
+  );
+}
+
+export async function getAdvancedInsights(
+  options: {
+    range?: AnalyticsRange;
+    platform?: string;
+    benchmark?: Benchmark;
+  } = {},
+  signal?: AbortSignal
+) {
+  const search = new URLSearchParams();
+  if (options.range) search.set("range", options.range);
+  if (options.platform) search.set("platform", options.platform);
+  if (options.benchmark) search.set("benchmark", options.benchmark);
+  const qs = search.toString();
+
+  return unwrap<{ insights: AdvancedInsights | null }>(
+    await fetch(`/api/analytics/advanced${qs ? `?${qs}` : ""}`, { signal })
   );
 }

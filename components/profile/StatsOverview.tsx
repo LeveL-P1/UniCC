@@ -1,23 +1,12 @@
 import type { StatOverview } from "@/types/stats";
-import { SectionCard } from "@/components/ui/SectionCard";
+import { Stat } from "@/components/ui/stat";
 
 export function StatsOverview({ overview }: { overview: StatOverview }) {
-  const items = [
-    { label: "Total Solved", value: overview.totalSolved },
-    { label: "Best Rating", value: overview.bestRating },
-    { label: "Contests", value: overview.contestsAttended },
-  ];
-
   return (
-    <SectionCard title="Stats Overview">
-      <div className="grid gap-3 sm:grid-cols-3">
-        {items.map((item) => (
-          <div key={item.label} className="rounded-xl border border-border bg-background p-4">
-            <p className="text-xs uppercase tracking-wide text-muted-foreground">{item.label}</p>
-            <p className="mt-2 text-2xl font-semibold">{item.value}</p>
-          </div>
-        ))}
-      </div>
-    </SectionCard>
+    <section aria-label="Overview" className="grid gap-10 sm:grid-cols-3">
+      <Stat signal={0} value={overview.totalSolved} label="Problems solved" />
+      <Stat signal={1} value={overview.bestRating} label="Best rating" />
+      <Stat signal={2} value={overview.contestsAttended} label="Contests attended" />
+    </section>
   );
 }

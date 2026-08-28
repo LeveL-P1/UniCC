@@ -1,33 +1,34 @@
+import { TriangleAlert } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { SectionCard } from "@/components/ui/SectionCard";
-import { AlertTriangle, Trash2 } from "lucide-react";
 
+/**
+ * There is no account-deletion endpoint yet, so the action is disabled and
+ * says so, rather than presenting a button that silently does nothing.
+ */
 export function DangerZoneCard() {
   return (
-    <SectionCard 
-      title="Danger Zone" 
-      className="border-red-500/20 bg-red-500/[0.02] hover:border-red-500/30"
+    <SectionCard
+      title="Danger zone"
+      className="border-destructive/25"
     >
-      <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
+      <div className="flex flex-col gap-6 md:flex-row md:items-center md:justify-between">
         <div className="flex items-start gap-4">
-          <div className="p-3 rounded-2xl bg-red-500/10 text-red-400">
-            <AlertTriangle size={24} />
-          </div>
+          <span className="mt-0.5 flex size-8 shrink-0 items-center justify-center rounded-icon bg-destructive/10 text-destructive">
+            <TriangleAlert size={15} />
+          </span>
           <div>
-            <h3 className="text-lg font-bold text-red-400">Delete Account</h3>
-            <p className="mt-1 text-sm text-neutral-500 max-w-xl">
-              Once you delete your account, there is no going back. This will permanently remove all your 
-              connected platforms, profile data, and analytics. Please be certain.
+            <p className="text-body-sm text-bone">Delete account</p>
+            <p className="mt-1.5 max-w-[60ch] text-[12px] text-smoke">
+              Permanently removes your linked platforms, sessions, snapshots and
+              public page. Not reversible — and not wired up yet. Use the account
+              menu in the header to remove your Clerk identity in the meantime.
             </p>
           </div>
         </div>
-        
-        <Button 
-          variant="ghost" 
-          className="bg-red-500/10 hover:bg-red-500 text-red-400 hover:text-white border border-red-500/20 transition-all rounded-xl px-6 py-5 font-bold flex items-center gap-2"
-        >
-          <Trash2 size={16} />
-          Delete Account
+
+        <Button variant="danger" size="lg" disabled className="shrink-0">
+          Not available yet
         </Button>
       </div>
     </SectionCard>

@@ -1,38 +1,68 @@
 "use client";
 
-import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { SignedIn, SignedOut } from "@clerk/nextjs";
-import { SectionCard } from "@/components/ui/SectionCard";
+import { ArrowRight } from "lucide-react";
+
+import { Button } from "@/components/ui/button";
+import { Eyebrow } from "@/components/ui/section-header";
+import { BorderBeam } from "@/components/ui/border-beam";
+import { Magnetic } from "@/components/motion/HoverPhysics";
+import { Reveal } from "@/components/motion/Reveal";
 
 export function LandingCTA() {
-  const router = useRouter();
-
   return (
-    <SectionCard className="my-12 text-center py-16 bg-black/20 backdrop-blur-sm border border-white/5 shadow-2xl">
-      <h2 className="text-3xl md:text-4xl font-semibold mb-4 bg-gradient-to-r from-white to-neutral-400 bg-clip-text text-transparent">
-        Ready to share your CP journey?
-      </h2>
-      <p className="mt-2 text-lg text-neutral-400 mb-10 max-w-xl mx-auto">
-        Connect your profiles and generate a single public page.
-      </p>
-      <div className="flex justify-center">
-        <SignedOut>
-          <button 
-            onClick={() => router.push('/sign-up')}
-            className="px-10 py-4 bg-white/5 backdrop-blur-sm border-b-2 border-white/20 text-white rounded-xl hover:bg-white/10 hover:border-white/50 transition-all duration-300 uppercase tracking-[0.15em] text-sm font-bold shadow-lg"
-          >
-            Create Your Profile
-          </button>
-        </SignedOut>
-        <SignedIn>
-          <button 
-            onClick={() => router.push('/dashboard')}
-            className="px-10 py-4 bg-white/5 backdrop-blur-sm border-b-2 border-white/20 text-white rounded-xl hover:bg-white/10 hover:border-white/50 transition-all duration-300 uppercase tracking-[0.15em] text-sm font-bold shadow-lg"
-          >
-            Go to Dashboard
-          </button>
-        </SignedIn>
-      </div>
-    </SectionCard>
+    <section className="frame py-20 lg:py-[112px]">
+      <Reveal>
+        <div className="relative overflow-hidden rounded-card bg-carbon px-6 py-16 text-center hairline sm:px-12 lg:py-20">
+          <Eyebrow>Ready</Eyebrow>
+
+          <h2 className="mx-auto mt-6 max-w-[16ch] text-[34px] font-light leading-[1.08] tracking-[-0.8px] text-chalk text-balance md:text-[48px] md:tracking-[-1px]">
+            Put your whole record on one page.
+          </h2>
+
+          <p className="mx-auto mt-6 max-w-[48ch] text-body text-ash">
+            Link your handles, let the sync run, and share a single URL that
+            stays current on its own.
+          </p>
+
+          <div className="mt-10 flex flex-wrap items-center justify-center gap-3">
+            <SignedOut>
+              <Magnetic>
+                <Button asChild size="lg" variant="chalk">
+                  <Link href="/sign-up">
+                    Create your profile
+                    <ArrowRight size={15} />
+                  </Link>
+                </Button>
+              </Magnetic>
+              <Button asChild size="lg" variant="ghost">
+                <Link href="/search">Browse profiles</Link>
+              </Button>
+            </SignedOut>
+            <SignedIn>
+              <Magnetic>
+                <Button asChild size="lg" variant="chalk">
+                  <Link href="/dashboard">
+                    Open dashboard
+                    <ArrowRight size={15} />
+                  </Link>
+                </Button>
+              </Magnetic>
+              <Button asChild size="lg" variant="ghost">
+                <Link href="/settings">Link a platform</Link>
+              </Button>
+            </SignedIn>
+          </div>
+
+          <BorderBeam
+            size={220}
+            duration={14}
+            colorFrom="rgba(212,208,201,0)"
+            colorTo="rgba(212,208,201,0.7)"
+          />
+        </div>
+      </Reveal>
+    </section>
   );
 }

@@ -70,7 +70,7 @@ export async function GET() {
 
   const bestRating = Math.max(0, ...ratingTimeline.map((point) => point.rating ?? 0));
   const platformStats: PlatformStats[] = comparison
-    .map((item) => {
+    .map((item): PlatformStats | null => {
       const key = platformToKey(item.platform);
       if (!key) return null;
       return {
@@ -82,7 +82,7 @@ export async function GET() {
         syncStatus: "SUCCESS" as const,
       };
     })
-    .filter((item): item is PlatformStats => Boolean(item));
+    .filter((item): item is PlatformStats => item !== null);
 
   const dailyCounts = new Map(
     sessionDays.map((day) => [day.date.toISOString().split("T")[0], day._sum.problemsSolved ?? 0])
