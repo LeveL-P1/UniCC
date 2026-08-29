@@ -50,9 +50,12 @@ export function HeroSection() {
             variants={line}
             className="mt-6 text-[46px] font-light leading-[1.02] tracking-[-1.1px] text-chalk sm:text-[58px] sm:tracking-[-1.4px] lg:text-[64px] lg:tracking-[-1.28px]"
           >
-            Every rating.
+            {/* "handle" and "record" are the product's own vocabulary — the
+                search field, settings and docs all use them. Both lines stay
+                under 14 characters so the 64px setting never re-wraps. */}
+            Every handle.
             <br />
-            <span className="text-bone">One page.</span>
+            <span className="text-bone">One record.</span>
           </motion.h1>
 
           <motion.p
@@ -62,8 +65,8 @@ export function HeroSection() {
             variants={line}
             className="mt-7 max-w-[30rem] text-body text-ash"
           >
-            UNICC pulls your LeetCode, Codeforces, CodeChef and AtCoder record
-            into a single profile — solves, ratings, contests and the trend
+            UNICC pulls your LeetCode, Codeforces, CodeChef and AtCoder handles
+            into one profile — solves, ratings, contests, and the trend
             underneath them.
           </motion.p>
 

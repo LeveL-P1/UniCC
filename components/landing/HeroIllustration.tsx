@@ -28,18 +28,12 @@ export function HeroIllustration({ className }: { className?: string }) {
       className={cn("h-full w-full", className)}
       radius={300}
       pull={16}
-      haloRadius={150}
+      halo={false}
       aria-hidden
       role="presentation"
       preserveAspectRatio="xMidYMid meet"
     >
       <defs>
-        <radialGradient id="cursor-halo-gradient">
-          <stop offset="0%" stopColor="#d4d0c9" stopOpacity="0.14" />
-          <stop offset="55%" stopColor="#d4d0c9" stopOpacity="0.04" />
-          <stop offset="100%" stopColor="#d4d0c9" stopOpacity="0" />
-        </radialGradient>
-
         <linearGradient id="curve-stroke" x1="0" y1="1" x2="1" y2="0">
           <stop offset="0%" stopColor="#615f5c" />
           <stop offset="60%" stopColor="#d4d0c9" />
@@ -51,16 +45,6 @@ export function HeroIllustration({ className }: { className?: string }) {
           <stop offset="100%" stopColor="#d4d0c9" stopOpacity="0" />
         </radialGradient>
       </defs>
-
-      {/* Graticule — the faintest possible chart floor. */}
-      <g stroke="#d4d0c9" strokeOpacity="0.05" strokeWidth="1">
-        {[104, 196, 288, 380, 472].map((y) => (
-          <line key={y} x1="60" y1={y} x2="840" y2={y} />
-        ))}
-        {[60, 216, 372, 528, 684, 840].map((x) => (
-          <line key={x} x1={x} y1="80" x2={x} y2="496" />
-        ))}
-      </g>
 
       {/* Spokes: every platform resolving into the single core. */}
       <g stroke="#d4d0c9" strokeOpacity="0.16" strokeWidth="1" strokeDasharray="3 5">

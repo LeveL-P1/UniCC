@@ -1,6 +1,6 @@
 import { Marquee } from "@/components/ui/marquee";
 import { PlatformChip } from "@/components/ui/platform-mark";
-import { PLATFORM_ORDER } from "@/lib/constants";
+import { SUPPORTED_PLATFORMS } from "@/lib/constants";
 
 /**
  * Integration row. Full width, no cards, no borders — logos on canvas,
@@ -10,8 +10,15 @@ import { PLATFORM_ORDER } from "@/lib/constants";
 export function PlatformRow() {
   return (
     <section className="relative py-14 hairline-t hairline-b">
-      <Marquee pauseOnHover className="[--duration:42s] [--gap:3.5rem]">
-        {PLATFORM_ORDER.map((key) => (
+      {/* Four syncable platforms. A wide gap lets each chip stand alone;
+          repeat=3 keeps the track wider than the viewport so the loop stays
+          seamless now that there are only four items to cycle. */}
+      <Marquee
+        pauseOnHover
+        repeat={3}
+        className="[--duration:48s] [--gap:7rem]"
+      >
+        {SUPPORTED_PLATFORMS.map((key) => (
           <PlatformChip key={key} platform={key} className="opacity-70" />
         ))}
       </Marquee>

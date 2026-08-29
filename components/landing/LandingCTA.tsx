@@ -5,7 +5,6 @@ import { SignedIn, SignedOut } from "@clerk/nextjs";
 import { ArrowRight } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
-import { Eyebrow } from "@/components/ui/section-header";
 import { BorderBeam } from "@/components/ui/border-beam";
 import { Magnetic } from "@/components/motion/HoverPhysics";
 import { Reveal } from "@/components/motion/Reveal";
@@ -15,9 +14,7 @@ export function LandingCTA() {
     <section className="frame py-20 lg:py-[112px]">
       <Reveal>
         <div className="relative overflow-hidden rounded-card bg-carbon px-6 py-16 text-center hairline sm:px-12 lg:py-20">
-          <Eyebrow>Ready</Eyebrow>
-
-          <h2 className="mx-auto mt-6 max-w-[16ch] text-[34px] font-light leading-[1.08] tracking-[-0.8px] text-chalk text-balance md:text-[48px] md:tracking-[-1px]">
+          <h2 className="mx-auto max-w-[16ch] text-[34px] font-light leading-[1.08] tracking-[-0.8px] text-chalk text-balance md:text-[48px] md:tracking-[-1px]">
             Put your whole record on one page.
           </h2>
 

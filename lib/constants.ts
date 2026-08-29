@@ -52,6 +52,20 @@ export const PLATFORM_ORDER = [
   "hackerearth",
 ] as const;
 
+/**
+ * Platforms we can actually sync. Only these have an adapter in
+ * lib/integrations — HACKERRANK and GEEKSFORGEEKS are registered as
+ * `undefined` there, and HackerEarth has no Platform enum member at all.
+ * Marketing surfaces must read from this list, never PLATFORM_ORDER, so we
+ * never advertise a platform we cannot fetch.
+ */
+export const SUPPORTED_PLATFORMS = [
+  "leetcode",
+  "codeforces",
+  "codechef",
+  "atcoder",
+] as const;
+
 export const PROFILE_LIMITS = {
   guestVisiblePlatforms: 3,
   guestChartPoints: 8,

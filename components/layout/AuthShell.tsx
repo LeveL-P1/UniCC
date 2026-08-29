@@ -1,7 +1,7 @@
 import type { ReactNode } from "react";
 import { Eyebrow } from "@/components/ui/section-header";
 import { PlatformChip } from "@/components/ui/platform-mark";
-import { PLATFORM_ORDER } from "@/lib/constants";
+import { SUPPORTED_PLATFORMS } from "@/lib/constants";
 
 /**
  * Split auth layout: the argument on the left, Clerk's form on the right in a
@@ -31,7 +31,7 @@ export function AuthShell({
         <div className="mt-12">
           <Eyebrow>Supported</Eyebrow>
           <ul className="mt-5 flex flex-wrap gap-x-6 gap-y-3">
-            {PLATFORM_ORDER.slice(0, 4).map((key) => (
+            {SUPPORTED_PLATFORMS.map((key) => (
               <li key={key}>
                 <PlatformChip platform={key} className="opacity-70" />
               </li>
