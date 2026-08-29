@@ -3,6 +3,7 @@ import { Inter, JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import { Agentation } from "agentation";
 import "./globals.css";
 
 /**
@@ -105,6 +106,9 @@ export default function RootLayout({
               error: { iconTheme: { primary: "#e05252", secondary: "#000000" } },
             }}
           />
+          {/* Visual annotation overlay for AI agents. Dev-only — the whole
+              subtree is dropped from production bundles by the NODE_ENV check. */}
+          {process.env.NODE_ENV === "development" ? <Agentation /> : null}
         </body>
       </html>
     </ClerkProvider>

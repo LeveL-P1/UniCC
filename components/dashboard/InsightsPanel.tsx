@@ -2,7 +2,7 @@
 
 import { useState } from "react";
 import { motion } from "framer-motion";
-import { Minus, TrendingUp, TriangleAlert } from "lucide-react";
+import { TrendingUp, TriangleAlert } from "lucide-react";
 
 import { Surface, Tag } from "@/components/ui/surface";
 import { Eyebrow } from "@/components/ui/section-header";

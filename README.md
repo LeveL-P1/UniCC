@@ -1,66 +1,114 @@
-# 🌌 UNICC – Unified Competitive Programming Stats and Dashboard (v2.0)
+# UNICC — Unified Competitive Programming Stats and Dashboard (v3.0)
 
 > [!CAUTION]
-> This project is fully made for **EXPERIMENTATION** and **EXPLORING THE IDEA** and it does **NOT** assure to provide real metrics at all.
+> This project is built for **EXPERIMENTATION** and **EXPLORING THE IDEA**. It does **NOT** guarantee accurate metrics — figures are only as good as what each platform publishes.
 
-
-A high-performance, aesthetically stunning full-stack dashboard designed for competitive programmers. UNICC centralizes your coding journey, visualizing progress and streaks across platforms like LeetCode and Codeforces in one unified, modern interface.
-
----
-
-## 🚀 Version 2.0 – The UI/UX Overhaul
-Version 2 is a complete ground-up redesign focused on "wowing" the user with a premium, state-of-the-art interface.
-
-*   **Traditional 2-Part Dashboard:** Re-engineered the layout to feature a fixed sidebar and a fluid main content area for a professional, enterprise-grade feel.
-*   **Premium Aesthetic:** Implemented a "Cosmic Nebula" theme using glassmorphism, dynamic gradients, and smooth animations.
-*   **Aesthetic Backgrounds:** Integrated a custom interactive particle background (`Grainient`) that makes the interface feel alive.
-*   **Enhanced Navigation:** Responsive sidebar with active state tracking and mobile-optimized toggle menus.
-*   **Refined Components:** Every card, button, and input has been redesigned with custom borders, transitions, and high-fidelity typography (Outfit/Cambria).
-*   **Auth Integration:** Seamlessly integrated Clerk Authentication with custom-styled login and signup flows.
+One page for every rating, every solve, every contest. UNICC pulls your LeetCode, Codeforces, CodeChef and AtCoder record into a single profile you can share, and shows the trend underneath it.
 
 ---
 
-## ✨ Core Features
+## Version 3.0 — The Henry redesign
 
-*   **Multi-Platform Sync:** Connect and visualize stats from LeetCode, Codeforces, and more.
-*   **Visual Analytics:** Track your coding volume, best ratings, and contest attendance through high-impact visual cards.
-*   **Personalized Profile:** Showcase your coding identity with a customizable public profile page (`/u/username`).
-*   **Real-time Updates:** Manual and automatic syncing to keep your platform stats fresh.
-*   **Responsive Design:** Fully optimized for mobile, tablet, and desktop viewing.
-*   **Activity Insights:** Preview your coding consistency with upcoming heatmap and trend visualizations.
-*   **Secure Auth:** Powered by Clerk for industry-standard security and user management.
+v3 replaces the "Cosmic Nebula" purple-glassmorphism look with **Henry**: a near-monochrome, editorial dark system — a darkroom gallery at midnight.
+
+*   **Design tokens are real again.** v2 defined its theme in `tailwind.config.ts` using v3-era `hsl(var(--x))` syntax while importing Tailwind v4. v4 never loaded that config, so `bg-card`, `text-muted-foreground`, `bg-primary` and `border-border` generated **zero CSS** — several pages rendered unstyled. All tokens now live in `@theme` inside `app/globals.css`, and `tailwind.config.ts` is gone.
+*   **Typography works.** `--font-outfit` / `--font-inter` were referenced but never defined, and `body` was pinned to `Cambria …, serif !important`. Inter (300/400/500/600) and JetBrains Mono are now loaded via `next/font` as the NB International Pro substitutes the design calls for.
+*   **Restrained palette.** Obsidian → Tar → Carbon surfaces, Bone/Ash/Smoke text, hairline borders at Bone 12%. Chromatic colour is **rationed** to stat bars and data viz only.
+*   **Whisper-light type.** Headlines at weight 300, tracking tightening from −0.28px at 14px to −1.92px at 96px. Nothing above 500.
+*   **Pills everywhere.** Every button and interactive chip is 100px radius; cards are 10px, icons and inputs 6px.
+*   **One inversion.** The white product-mockup card on the landing page is the only light surface in the system — it reads as a screenshot, not chrome.
+
+### Analytics, finally on screen
+
+`lib/analytics/service.ts` already computed consistency scores, contest↔practice Pearson correlation, velocity per week, plateau detection and topic strengths — behind five API routes that **nothing in the UI called**. v3 wires them up:
+
+*   Dashboard insights panel with range (30/90/180/365d) and benchmark filters
+*   Unified rating timeline across every platform on one axis
+*   Real activity heatmap and 30-day practice volume, replacing the *"coming soon"* placeholder
+*   Difficulty mix and synced-vs-manual source breakdown
+
+Fabricated UI was removed along the way: the hardcoded `"12 Days"` streak, the "Pro Member" badge, the `unicc.com` copy-URL (now built from the real origin), and a contact form that silently discarded input (now composes a `mailto:`).
+
+### Motion
+
+| Effect | Implementation |
+| --- | --- |
+| GSAP mouse parallax | `components/motion/MouseParallax.tsx` — `quickTo` on the GSAP ticker, no React re-render per pointermove |
+| Cursor-reactive SVG | `components/motion/CursorReactiveSVG.tsx` — pointer mapped into SVG user space; nodes lean and brighten by proximity |
+| Interactive hero illustration | `components/landing/HeroIllustration.tsx` — four platform ratings resolving into one core |
+| SVG parallax | `components/motion/ParallaxSVG.tsx` — layered depth on scroll + self-drawing strokes |
+| Scroll Expand | `components/motion/ScrollExpand.tsx` — pinned panel scrubbing inset → full-bleed |
+| Floating UI | `components/motion/Floating.tsx` — offset drift cycles |
+| Framer hover physics | `components/motion/HoverPhysics.tsx` — spring-driven `Tilt` and `Magnetic` |
+| Interactive feature cards | `components/landing/FeatureCards.tsx` — MagicCard spotlight + Tilt + animated per-card visuals |
+
+All motion is gated behind `prefers-reduced-motion`, and pointer effects are skipped entirely on coarse-pointer devices.
 
 ---
 
-## 🛠️ Tech Stack
+## Core Features
+
+*   **Multi-platform sync** — LeetCode, Codeforces, CodeChef and AtCoder, on a schedule or on demand
+*   **Public profiles** — a shareable page at `/u/username` that stays current on its own
+*   **Search anyone** — resolves handles that have never signed up by fetching them live and caching the snapshot
+*   **Session logging** — manual practice entries feed velocity, consistency and the topic breakdown
+*   **Deep analytics** — velocity vs. benchmark, plateau detection, practice↔contest correlation
+*   **Secure auth** — Clerk, with the sign-in flow styled into the system
+
+---
+
+## Tech Stack
 
 *   **Framework:** [Next.js 16 (App Router)](https://nextjs.org/)
 *   **Language:** [TypeScript](https://www.typescriptlang.org/)
-*   **Styling:** [Tailwind CSS 4.0](https://tailwindcss.com/)
-*   **Animations:** [Framer Motion](https://www.framer.com/motion/)
-*   **Database:** [PostgreSQL (Neon)](https://neon.tech/)
-*   **ORM:** [Prisma](https://www.prisma.io/)
-*   **Authentication:** [Clerk](https://clerk.com/)
-*   **Visuals:** [Lucide React](https://lucide.dev/), [OGL](https://github.com/oframe/ogl)
+*   **Styling:** [Tailwind CSS v4](https://tailwindcss.com/) — tokens in `@theme`, no JS config
+*   **Animation:** [GSAP 3](https://gsap.com/) + [ScrollTrigger](https://gsap.com/docs/v3/Plugins/ScrollTrigger/), [Framer Motion](https://motion.dev/)
+*   **Components:** [shadcn/ui](https://ui.shadcn.com/), [Magic UI](https://magicui.design/), [Skiper UI](https://skiper-ui.com/)
+*   **Charts:** [Recharts](https://recharts.org/)
+*   **Database:** [PostgreSQL (Neon)](https://neon.tech/) · **ORM:** [Prisma](https://www.prisma.io/)
+*   **Auth:** [Clerk](https://clerk.com/) · **Icons:** [Lucide](https://lucide.dev/)
 
 ---
 
-## 📸 Deployment & Status
+## Design system
 
-*   **Status:** Experimental prototype. It has real auth/database/sync foundations, but the app still needs production hardening and a planned frontend rebuild before it should be treated as production-ready.
-*   **Deployment:** Configure Clerk, Postgres, Prisma migrations, and a protected cron scheduler before deploying.
-*   **Cron Security:** `/api/cron/sync` requires `CRON_SECRET` and an `Authorization: Bearer <secret>` header.
+Tokens live in one place — `app/globals.css` under `@theme`.
+
+| Layer | Token | Value |
+| --- | --- | --- |
+| Canvas | `--color-obsidian` | `#000000` |
+| Recess | `--color-tar` | `#0c0c0c` |
+| Card | `--color-carbon` | `#141414` |
+| Primary text | `--color-bone` | `#d4d0c9` |
+| Secondary text | `--color-ash` | `#878581` |
+| Tertiary / borders | `--color-smoke` | `#615f5c` |
+| Signals (rationed) | `--color-signal-{green,blue,orange,violet}` | `#1fe274` `#00a8f0` `#ff9634` `#a76fdd` |
+
+Helper utilities: `hairline`, `hairline-t`, `hairline-b`, `eyebrow`, `frame`.
+
+**Don't:** use weight 600+ for headings · add drop shadows beyond the 1px lift · use signal colours outside stats and charts · introduce a fourth surface level · break the 100px pill radius.
 
 ---
 
-## ⚙️ Local Development
+## Deployment & Status
 
-*   **Clone the Repo:** `git clone https://github.com/Level-P1/unicc-dashboard.git`
-*   **Install Deps:** `npm install`
-*   **Setup Env:** Create a `.env` file with your Clerk and Database keys.
-*   **Database Migrations:** `npx prisma migrate deploy`
-*   **Run Dev:** `npm run dev`
+*   **Status:** Experimental prototype with real auth, database and sync foundations. Still needs production hardening.
+*   **Deployment:** Configure Clerk, Postgres, Prisma migrations and a protected cron scheduler before deploying.
+*   **Cron security:** `/api/cron/sync` requires `CRON_SECRET` and an `Authorization: Bearer <secret>` header.
 
 ---
 
-Built with 💜 by **Level-P1**
+## Local Development
+
+```bash
+git clone https://github.com/Level-P1/unicc-dashboard.git
+npm install
+npx prisma migrate deploy
+npm run dev
+```
+
+Create a `.env` from `.env.example` with your Clerk and database keys first.
+
+---
+
+Built by **Level-P1**

@@ -83,27 +83,42 @@ export function useAdvancedInsights(options: {
   benchmark: Benchmark;
 }) {
   const { range, platform, benchmark } = options;
-  const [insights, setInsights] = useState<AdvancedInsights | null>(null);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
+  const key = `${range}|${platform}|${benchmark}`;
+
+  /**
+   * Results are stamped with the filter key they belong to, so `loading` is
+   * derived rather than set synchronously inside the effect (which would
+   * trigger a cascading render).
+   */
+  const [state, setState] = useState<{
+    key: string;
+    insights: AdvancedInsights | null;
+    error: string | null;
+  }>({ key: "", insights: null, error: null });
 
   useEffect(() => {
     const controller = new AbortController();
-    setLoading(true);
-    setError(null);
 
     getAdvancedInsights({ range, platform, benchmark }, controller.signal)
-      .then((response) => setInsights(response.insights))
+      .then((response) => {
+        if (controller.signal.aborted) return;
+        setState({ key, insights: response.insights, error: null });
+      })
       .catch((cause) => {
         if (controller.signal.aborted) return;
-        setError(cause instanceof Error ? cause.message : "Could not load insights");
-      })
-      .finally(() => {
-        if (!controller.signal.aborted) setLoading(false);
+        setState({
+          key,
+          insights: null,
+          error: cause instanceof Error ? cause.message : "Could not load insights",
+        });
       });
 
     return () => controller.abort();
-  }, [range, platform, benchmark]);
+  }, [key, range, platform, benchmark]);
 
-  return { insights, loading, error };
+  return {
+    insights: state.key === key ? state.insights : null,
+    loading: state.key !== key,
+    error: state.key === key ? state.error : null,
+  };
 }
