@@ -14,7 +14,8 @@ export function Logo({
   return (
     <span
       className={cn(
-        "inline-flex items-baseline gap-1 text-[15px] font-normal tracking-[-0.02em] text-chalk",
+        // The wordmark is a title, so it takes the display face.
+        "inline-flex items-baseline gap-1 font-display text-[15px] font-medium tracking-[-0.01em] text-chalk",
         className
       )}
     >

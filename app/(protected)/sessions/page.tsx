@@ -128,7 +128,7 @@ export default function SessionsPage() {
       <header className="flex flex-col gap-5 md:flex-row md:items-end md:justify-between">
         <div>
           <Eyebrow>Practice log</Eyebrow>
-          <h1 className="mt-3 text-[32px] font-light leading-[1.1] tracking-[-0.64px] text-chalk md:text-[40px] md:tracking-[-0.8px]">
+          <h1 className="mt-3 text-[24px] font-light leading-[1.15] tracking-[-0.48px] text-chalk md:text-[30px] md:tracking-[-0.6px]">
             Sessions
           </h1>
           <p className="mt-3 max-w-[52ch] text-body-sm text-ash">

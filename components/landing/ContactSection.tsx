@@ -71,7 +71,7 @@ export function ContactSection() {
                   between them — never mid-phrase. That guarantees 4 words then
                   3 words at every width, instead of stranding one or two.
                   text-balance alone did not hold up at 375px. */}
-              <h2 className="mt-5 max-w-[24ch] text-[24px] font-light leading-[1.15] tracking-[-0.5px] text-chalk md:text-[34px] md:tracking-[-0.7px]">
+              <h2 className="mt-5 max-w-[24ch] text-[15px] font-light leading-[1.3] tracking-[-0.3px] text-chalk min-[360px]:text-[17px] min-[360px]:tracking-[-0.34px] sm:text-[20px] sm:tracking-[-0.4px] md:text-[26px] md:tracking-[-0.52px]">
                 <span className="inline-block">Tell me what&rsquo;s broken</span>{" "}
                 <span className="inline-block">or what&rsquo;s missing.</span>
               </h2>

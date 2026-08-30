@@ -20,7 +20,7 @@ export function SearchClient({ query }: { query: string }) {
     <div className="frame flex flex-col gap-10 py-14 lg:py-20">
       <header>
         <Eyebrow>Search</Eyebrow>
-        <h1 className="mt-3 text-[36px] font-light leading-[1.05] tracking-[-0.8px] text-chalk md:text-[48px] md:tracking-[-1px]">
+        <h1 className="mt-3 text-[26px] font-light leading-[1.1] tracking-[-0.52px] text-chalk md:text-[34px] md:tracking-[-0.7px]">
           Find a programmer
         </h1>
         <p className="mt-4 max-w-[52ch] text-body-sm text-ash">

@@ -45,8 +45,8 @@ export function SectionHeader({
         {eyebrow ? <Eyebrow>{eyebrow}</Eyebrow> : null}
         <h2
           className={cn(
-            "text-[32px] font-light leading-[1.15] tracking-[-0.64px] text-chalk",
-            "md:text-[44px] md:tracking-[-0.9px]",
+            "text-[24px] font-light leading-[1.18] tracking-[-0.48px] text-chalk",
+            "md:text-[32px] md:tracking-[-0.64px]",
             centered && "max-w-[18ch] text-balance"
           )}
         >

@@ -46,10 +46,14 @@
   --color-input: rgba(212, 208, 201, 0.16);
   --color-ring: #d4d0c9;
 
-  /* --- Typography. NB International Pro -> Inter (geometric humanist substitute) --- */
-  --font-sans: var(--font-inter), ui-sans-serif, system-ui, -apple-system,
+  /* --- Typography.
+     Panchang carries headlines and titles; Plus Jakarta Sans carries body and
+     UI. Both are self-hosted variable faces (see app/fonts). Mono stays
+     JetBrains for eyebrows, tabular figures and system labels. --- */
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, -apple-system,
     "Segoe UI", Roboto, sans-serif;
-  --font-display: var(--font-inter), ui-sans-serif, system-ui, sans-serif;
+  --font-display: var(--font-panchang), var(--font-jakarta), ui-sans-serif,
+    system-ui, sans-serif;
   --font-mono: var(--font-jetbrains), ui-monospace, SFMono-Regular, Menlo,
     Consolas, monospace;
 

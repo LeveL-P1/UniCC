@@ -36,7 +36,7 @@ export function ProfileHeader({ profile }: { profile: PublicProfile }) {
 
         <div className="min-w-0">
           <Eyebrow>Profile</Eyebrow>
-          <h1 className="mt-2 truncate text-[36px] font-light leading-[1.05] tracking-[-0.8px] text-chalk md:text-[48px] md:tracking-[-1px]">
+          <h1 className="mt-2 truncate text-[26px] font-light leading-[1.1] tracking-[-0.52px] text-chalk md:text-[34px] md:tracking-[-0.7px]">
             {profile.fullName || profile.username}
           </h1>
           <p className="mt-1.5 font-mono text-[12px] tracking-[0.06em] text-ash">

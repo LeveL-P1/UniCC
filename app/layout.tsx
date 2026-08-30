@@ -1,5 +1,6 @@
 import type { Metadata, Viewport } from "next";
-import { Inter, JetBrains_Mono } from "next/font/google";
+import localFont from "next/font/local";
+import { JetBrains_Mono } from "next/font/google";
 import { ClerkProvider } from "@clerk/nextjs";
 import { Toaster } from "react-hot-toast";
 import { SpeedInsights } from "@vercel/speed-insights/next";
@@ -7,18 +8,36 @@ import { Agentation } from "agentation";
 import "./globals.css";
 
 /**
- * Henry's primary face is NB International Pro — a licensed NB Studio type.
- * Inter is the specified substitute: geometric humanist, wide x-height, and it
- * holds up at the 300 weight the display scale is built on.
+ * Panchang — headlines and titles. Self-hosted variable woff2 (200-800), so
+ * the whole weight axis costs one 37KB request. Licence: FFL, bundled
+ * alongside the font in app/fonts.
  */
-const inter = Inter({
-  subsets: ["latin"],
-  weight: ["300", "400", "500", "600"],
-  variable: "--font-inter",
+const panchang = localFont({
+  src: [{ path: "./fonts/Panchang-Variable.woff2", weight: "200 800", style: "normal" }],
+  variable: "--font-panchang",
   display: "swap",
+  fallback: ["ui-sans-serif", "system-ui", "sans-serif"],
 });
 
-/** Stands in for NB International Pro Mono — system labels, never marketing copy. */
+/**
+ * Plus Jakarta Sans — body and UI. Variable roman + italic (200-800).
+ * Licence: OFL, bundled in app/fonts.
+ */
+const jakarta = localFont({
+  src: [
+    { path: "./fonts/PlusJakartaSans-Variable.woff2", weight: "200 800", style: "normal" },
+    {
+      path: "./fonts/PlusJakartaSans-VariableItalic.woff2",
+      weight: "200 800",
+      style: "italic",
+    },
+  ],
+  variable: "--font-jakarta",
+  display: "swap",
+  fallback: ["ui-sans-serif", "system-ui", "-apple-system", "sans-serif"],
+});
+
+/** Mono stays JetBrains — eyebrows, tabular figures and system labels. */
 const jetbrainsMono = JetBrains_Mono({
   subsets: ["latin"],
   weight: ["400", "500"],
@@ -71,7 +90,7 @@ export default function RootLayout({
           colorInputText: "#d4d0c9",
           colorDanger: "#e05252",
           borderRadius: "6px",
-          fontFamily: "var(--font-inter), system-ui, sans-serif",
+          fontFamily: "var(--font-jakarta), system-ui, sans-serif",
         },
         elements: {
           formButtonPrimary:
@@ -86,7 +105,10 @@ export default function RootLayout({
     >
       {/* dark is permanent: Henry has no light mode. The class keeps
           Magic UI's dark: variants resolving. */}
-      <html lang="en" className={`dark ${inter.variable} ${jetbrainsMono.variable}`}>
+      <html
+        lang="en"
+        className={`dark ${panchang.variable} ${jakarta.variable} ${jetbrainsMono.variable}`}
+      >
         <body className="antialiased">
           {children}
           <SpeedInsights />

@@ -48,11 +48,12 @@ export function HeroSection() {
             animate="visible"
             custom={1}
             variants={line}
-            className="mt-6 text-[46px] font-light leading-[1.02] tracking-[-1.1px] text-chalk sm:text-[58px] sm:tracking-[-1.4px] lg:text-[64px] lg:tracking-[-1.28px]"
+            className="mt-6 text-[28px] font-light leading-[1.08] tracking-[-0.56px] text-chalk min-[360px]:text-[34px] min-[360px]:tracking-[-0.7px] sm:text-[48px] sm:tracking-[-0.96px] lg:text-[54px] lg:tracking-[-1.1px]"
           >
             {/* "handle" and "record" are the product's own vocabulary — the
-                search field, settings and docs all use them. Both lines stay
-                under 14 characters so the 64px setting never re-wraps. */}
+                search field, settings and docs all use them. Panchang runs
+                ~1.5x wider than the old face, so each step is sized to keep
+                both phrases on one line down to 320px. */}
             Every handle.
             <br />
             <span className="text-bone">One record.</span>

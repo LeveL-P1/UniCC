@@ -159,7 +159,7 @@ function Composition({
           fontSize={type.core}
           fontWeight="400"
           letterSpacing="0.16em"
-          fontFamily="var(--font-inter), sans-serif"
+          fontFamily="var(--font-panchang), sans-serif"
         >
           UNICC
         </text>
@@ -202,7 +202,7 @@ function Composition({
             y={node.y - 3}
             fill="#d4d0c9"
             fontSize={type.label}
-            fontFamily="var(--font-inter), sans-serif"
+            fontFamily="var(--font-jakarta), sans-serif"
           >
             {node.label}
           </text>

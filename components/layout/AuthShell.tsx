@@ -23,7 +23,7 @@ export function AuthShell({
     <div className="frame grid min-h-[calc(100svh-16rem)] items-center gap-14 py-16 lg:grid-cols-2 lg:gap-20">
       <div className="hidden lg:block">
         <Eyebrow>{eyebrow}</Eyebrow>
-        <h1 className="mt-5 max-w-[12ch] text-[48px] font-light leading-[1.02] tracking-[-1px] text-chalk">
+        <h1 className="mt-5 max-w-[12ch] text-[34px] font-light leading-[1.06] tracking-[-0.7px] text-chalk">
           {title}
         </h1>
         <p className="mt-6 max-w-[40ch] text-body text-ash">{description}</p>

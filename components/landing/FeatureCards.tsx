@@ -66,20 +66,29 @@ function FeatureCard({
   return (
     <Tilt max={5} className="h-full">
       <MagicCard
-        className="h-full rounded-card"
+        // MagicCard wraps children in its own `relative z-40` div with no
+        // height, which broke the h-full chain: the bordered shell stretched to
+        // the tallest card in the row while the content stopped at its natural
+        // height, leaving the gap. Reach through to that wrapper rather than
+        // patching the vendored component.
+        className="h-full rounded-card [&>div:last-child]:h-full"
         gradientSize={260}
         gradientColor="rgba(212,208,201,0.05)"
         gradientOpacity={1}
         gradientFrom="rgba(212,208,201,0.55)"
         gradientTo="rgba(97,95,92,0.25)"
       >
-        {/* Carbon surface over MagicCard's obsidian padding-box. */}
-        <div className="group flex h-full flex-col rounded-card bg-carbon p-5">
-          <div className="relative h-[168px] overflow-hidden rounded-icon bg-tar hairline">
+        {/* No surface fill — flat over near-black, hairlines carry the edge. */}
+        <div className="group flex h-full flex-col rounded-card p-5">
+          {/* The media well grows, not the copy. The grid stretches all three
+              cards to the tallest, so whichever card has the shortest body used
+              to trail dead space beneath its text; now that slack is absorbed
+              up here and the copy sits flush to the bottom of every card. */}
+          <div className="relative min-h-[168px] flex-1 overflow-hidden rounded-icon hairline">
             {visual}
           </div>
 
-          <div className="mt-6 flex flex-1 flex-col">
+          <div className="mt-6">
             <div className="flex items-start justify-between gap-4">
               <h3 className="text-body font-normal text-bone">{title}</h3>
               <ArrowUpRight
