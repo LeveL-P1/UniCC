@@ -37,17 +37,17 @@ export function SiteFooter() {
         {COLUMNS.map((column) => (
           <nav key={column.title} aria-label={column.title}>
             <p className="eyebrow">{column.title}</p>
-            <ul className="mt-5 flex flex-col gap-3 text-[13px]">
+            <ul className="mt-5 flex flex-col gap-1 text-[13px]">
               {column.links.map((link) => (
                 <li key={link.name}>
                   {"external" in link && link.external ? (
-                    <Link001 href={link.href} className="text-ash hover:text-chalk">
+                    <Link001 href={link.href} className="py-1.5 text-ash hover:text-chalk">
                       {link.name}
                     </Link001>
                   ) : (
                     <Link
                       href={link.href}
-                      className="text-ash transition-colors hover:text-chalk"
+                      className="inline-flex py-1.5 text-ash transition-colors hover:text-chalk"
                     >
                       {link.name}
                     </Link>
@@ -67,7 +67,7 @@ export function SiteFooter() {
             href="https://github.com/LeveL-P1"
             target="_blank"
             rel="noreferrer"
-            className="text-ash transition-colors hover:text-chalk"
+            className="inline-flex py-1 text-ash transition-colors hover:text-chalk"
           >
             Level-P1
           </a>

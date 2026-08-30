@@ -16,7 +16,7 @@ export function ProductMockup({ className }: { className?: string }) {
   return (
     <div
       className={cn(
-        "w-full max-w-[420px] rounded-[10px] bg-white p-5 shadow-[0_1px_2px_0_rgba(20,21,26,0.05)]",
+        "w-full max-w-[420px] rounded-[10px] bg-white p-4 shadow-[0_1px_2px_0_rgba(20,21,26,0.05)] sm:p-5",
         "ring-1 ring-[rgba(212,208,201,0.5)]",
         className
       )}

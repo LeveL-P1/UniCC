@@ -133,9 +133,14 @@ export function HeroSection() {
           initial={{ opacity: 0, scale: 0.97 }}
           animate={{ opacity: 1, scale: 1 }}
           transition={{ duration: 1.2, delay: 0.15, ease: EASE_OUT_EXPO }}
-          className="relative -mx-6 lg:mx-0"
+          className="relative lg:mx-0"
         >
-          <MouseParallax strength={26} className="aspect-[9/6] w-full">
+          {/* The compact composition is portrait (400x470); the wide one is
+              landscape (900x560). Match the box to whichever is rendering. */}
+          <MouseParallax
+            strength={26}
+            className="aspect-[4/4.4] w-full sm:aspect-[5/4] lg:aspect-[9/6]"
+          >
             <div data-parallax="0.35" className="absolute inset-0">
               <HeroIllustration />
             </div>

@@ -253,14 +253,20 @@
   border-bottom: 1px solid rgba(212, 208, 201, 0.12);
 }
 
-/* Mono section marker (READY / SKILL / PROOF). Plain text, no chip styling. */
+/* Mono section marker (READY / SKILL / PROOF). Plain text, no chip styling.
+   10px uppercase mono is the spec, but it reads as noise on a phone — one
+   extra pixel below 40rem keeps it legible without changing the desktop look. */
 @utility eyebrow {
   font-family: var(--font-mono);
-  font-size: 10px;
+  font-size: 11px;
   line-height: 1.2;
   letter-spacing: 0.12em;
   text-transform: uppercase;
   color: var(--color-ash);
+
+  @media (width >= 40rem) {
+    font-size: 10px;
+  }
 }
 
 @utility frame {

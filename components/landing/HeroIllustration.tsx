@@ -3,44 +3,116 @@
 import { CursorReactiveSVG } from "@/components/motion/CursorReactiveSVG";
 import { cn } from "@/lib/utils";
 
-const CENTER = { x: 450, y: 288 };
-
 /**
  * The hero's single illustration: four platform ratings resolving into one.
- * Nodes lean toward the pointer, a halo lights the field behind them, and the
- * unified curve sits underneath as the thing the whole product argues for.
+ * Nodes lean toward the pointer and the unified curve sits underneath as the
+ * thing the whole product argues for.
+ *
+ * Two compositions, switched with CSS rather than a media-query hook so there
+ * is no hydration flash. The wide one shrunk to a 375px viewport rendered its
+ * labels at 4.8px — illegible — so the compact one re-lays the same four nodes
+ * into a 2x2 grid in a squarer viewBox with proportionally larger type.
  */
-const NODES = [
-  { id: "LC", label: "LeetCode", value: "2,041", x: 178, y: 132, signal: "var(--color-signal-orange)" },
-  { id: "CF", label: "Codeforces", value: "1,874", x: 722, y: 108, signal: "var(--color-signal-blue)" },
-  { id: "CC", label: "CodeChef", value: "1,932", x: 754, y: 404, signal: "var(--color-signal-violet)" },
-  { id: "AC", label: "AtCoder", value: "1,588", x: 152, y: 418, signal: "var(--color-signal-green)" },
-] as const;
 
-/** A plausible unified-rating curve. Decorative, not data. */
-const CURVE =
-  "M 96 470 C 176 452, 214 486, 286 444 S 396 388, 452 402 S 560 350, 622 316 S 742 268, 812 232";
+interface NodeSpec {
+  id: string;
+  label: string;
+  value: string;
+  x: number;
+  y: number;
+  signal: string;
+}
+
+const SIGNALS = {
+  LC: "var(--color-signal-orange)",
+  CF: "var(--color-signal-blue)",
+  CC: "var(--color-signal-violet)",
+  AC: "var(--color-signal-green)",
+} as const;
+
+const WIDE = {
+  viewBox: "0 0 900 560",
+  center: { x: 450, y: 288 },
+  coreR: 52,
+  card: { w: 156, h: 52, rx: 10 },
+  type: { label: 12, value: 10, core: 15, coreSub: 10 },
+  curve:
+    "M 96 470 C 176 452, 214 486, 286 444 S 396 388, 452 402 S 560 350, 622 316 S 742 268, 812 232",
+  nodes: [
+    { id: "LC", label: "LeetCode", value: "2,041", x: 178, y: 132, signal: SIGNALS.LC },
+    { id: "CF", label: "Codeforces", value: "1,874", x: 722, y: 108, signal: SIGNALS.CF },
+    { id: "CC", label: "CodeChef", value: "1,932", x: 754, y: 404, signal: SIGNALS.CC },
+    { id: "AC", label: "AtCoder", value: "1,588", x: 152, y: 418, signal: SIGNALS.AC },
+  ] as NodeSpec[],
+};
+
+const COMPACT = {
+  viewBox: "0 0 400 470",
+  center: { x: 200, y: 235 },
+  coreR: 46,
+  card: { w: 172, h: 56, rx: 10 },
+  type: { label: 15, value: 12, core: 16, coreSub: 11 },
+  curve: "M 40 400 C 96 384, 132 344, 188 350 S 280 296, 360 250",
+  nodes: [
+    { id: "LC", label: "LeetCode", value: "2,041", x: 104, y: 66, signal: SIGNALS.LC },
+    { id: "CF", label: "Codeforces", value: "1,874", x: 296, y: 66, signal: SIGNALS.CF },
+    { id: "AC", label: "AtCoder", value: "1,588", x: 104, y: 404, signal: SIGNALS.AC },
+    { id: "CC", label: "CodeChef", value: "1,932", x: 296, y: 404, signal: SIGNALS.CC },
+  ] as NodeSpec[],
+};
+
+type Layout = typeof WIDE;
 
 export function HeroIllustration({ className }: { className?: string }) {
   return (
+    <>
+      <Composition
+        layout={COMPACT}
+        className={cn("lg:hidden", className)}
+        radius={220}
+        pull={12}
+      />
+      <Composition
+        layout={WIDE}
+        className={cn("hidden lg:block", className)}
+        radius={300}
+        pull={16}
+      />
+    </>
+  );
+}
+
+function Composition({
+  layout,
+  className,
+  radius,
+  pull,
+}: {
+  layout: Layout;
+  className?: string;
+  radius: number;
+  pull: number;
+}) {
+  const { viewBox, center, coreR, card, type, curve, nodes } = layout;
+
+  return (
     <CursorReactiveSVG
-      viewBox="0 0 900 560"
+      viewBox={viewBox}
       className={cn("h-full w-full", className)}
-      radius={300}
-      pull={16}
+      radius={radius}
+      pull={pull}
       halo={false}
       aria-hidden
       role="presentation"
       preserveAspectRatio="xMidYMid meet"
     >
       <defs>
-        <linearGradient id="curve-stroke" x1="0" y1="1" x2="1" y2="0">
+        <linearGradient id={`curve-${viewBox.replace(/\s/g, "")}`} x1="0" y1="1" x2="1" y2="0">
           <stop offset="0%" stopColor="#615f5c" />
           <stop offset="60%" stopColor="#d4d0c9" />
           <stop offset="100%" stopColor="#ffffff" />
         </linearGradient>
-
-        <radialGradient id="core-glow">
+        <radialGradient id={`core-${viewBox.replace(/\s/g, "")}`}>
           <stop offset="0%" stopColor="#d4d0c9" stopOpacity="0.22" />
           <stop offset="100%" stopColor="#d4d0c9" stopOpacity="0" />
         </radialGradient>
@@ -48,16 +120,16 @@ export function HeroIllustration({ className }: { className?: string }) {
 
       {/* Spokes: every platform resolving into the single core. */}
       <g stroke="#d4d0c9" strokeOpacity="0.16" strokeWidth="1" strokeDasharray="3 5">
-        {NODES.map((node) => (
-          <line key={node.id} x1={node.x} y1={node.y} x2={CENTER.x} y2={CENTER.y} />
+        {nodes.map((node) => (
+          <line key={node.id} x1={node.x} y1={node.y} x2={center.x} y2={center.y} />
         ))}
       </g>
 
       {/* The unified curve. */}
       <path
-        d={CURVE}
+        d={curve}
         fill="none"
-        stroke="url(#curve-stroke)"
+        stroke={`url(#curve-${viewBox.replace(/\s/g, "")})`}
         strokeWidth="1.5"
         strokeLinecap="round"
         opacity="0.85"
@@ -65,31 +137,26 @@ export function HeroIllustration({ className }: { className?: string }) {
 
       {/* Core */}
       <g>
-        <circle cx={CENTER.x} cy={CENTER.y} r="96" fill="url(#core-glow)" />
         <circle
-          cx={CENTER.x}
-          cy={CENTER.y}
-          r="52"
+          cx={center.x}
+          cy={center.y}
+          r={coreR * 1.85}
+          fill={`url(#core-${viewBox.replace(/\s/g, "")})`}
+        />
+        <circle
+          cx={center.x}
+          cy={center.y}
+          r={coreR}
           fill="#0c0c0c"
           stroke="#d4d0c9"
           strokeOpacity="0.22"
         />
-        <circle
-          cx={CENTER.x}
-          cy={CENTER.y}
-          r="52"
-          fill="none"
-          stroke="#d4d0c9"
-          strokeOpacity="0.3"
-          className="origin-center animate-pulse-ring"
-          style={{ transformBox: "fill-box", transformOrigin: "center" }}
-        />
         <text
-          x={CENTER.x}
-          y={CENTER.y - 4}
+          x={center.x}
+          y={center.y - 4}
           textAnchor="middle"
           fill="#ffffff"
-          fontSize="15"
+          fontSize={type.core}
           fontWeight="400"
           letterSpacing="0.16em"
           fontFamily="var(--font-inter), sans-serif"
@@ -97,12 +164,12 @@ export function HeroIllustration({ className }: { className?: string }) {
           UNICC
         </text>
         <text
-          x={CENTER.x}
-          y={CENTER.y + 18}
+          x={center.x}
+          y={center.y + 17}
           textAnchor="middle"
           fill="#878581"
-          fontSize="10"
-          letterSpacing="0.14em"
+          fontSize={type.coreSub}
+          letterSpacing="0.12em"
           fontFamily="var(--font-jetbrains), monospace"
         >
           1,859 AVG
@@ -110,7 +177,7 @@ export function HeroIllustration({ className }: { className?: string }) {
       </g>
 
       {/* Platform nodes — the only chromatic marks in the scene. */}
-      {NODES.map((node) => (
+      {nodes.map((node) => (
         <g
           key={node.id}
           data-cursor-node
@@ -120,31 +187,31 @@ export function HeroIllustration({ className }: { className?: string }) {
           opacity="0.45"
         >
           <rect
-            x={node.x - 78}
-            y={node.y - 26}
-            width="156"
-            height="52"
-            rx="10"
+            x={node.x - card.w / 2}
+            y={node.y - card.h / 2}
+            width={card.w}
+            height={card.h}
+            rx={card.rx}
             fill="#141414"
             stroke="#d4d0c9"
             strokeOpacity="0.12"
           />
-          <circle cx={node.x - 58} cy={node.y} r="4" fill={node.signal} />
+          <circle cx={node.x - card.w / 2 + 20} cy={node.y} r="4" fill={node.signal} />
           <text
-            x={node.x - 44}
+            x={node.x - card.w / 2 + 34}
             y={node.y - 3}
             fill="#d4d0c9"
-            fontSize="12"
+            fontSize={type.label}
             fontFamily="var(--font-inter), sans-serif"
           >
             {node.label}
           </text>
           <text
-            x={node.x - 44}
-            y={node.y + 14}
+            x={node.x - card.w / 2 + 34}
+            y={node.y + 15}
             fill="#878581"
-            fontSize="10"
-            letterSpacing="0.1em"
+            fontSize={type.value}
+            letterSpacing="0.08em"
             fontFamily="var(--font-jetbrains), monospace"
           >
             {node.value}

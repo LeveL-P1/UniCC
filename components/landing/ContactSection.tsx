@@ -65,7 +65,7 @@ export function ContactSection() {
         <div className="overflow-hidden rounded-card hairline">
           <div className="grid lg:grid-cols-[minmax(0,0.85fr)_minmax(0,1fr)]">
             {/* Left rail — the spec sheet */}
-            <div className="flex flex-col p-8 lg:border-r lg:border-[rgba(212,208,201,0.12)] lg:p-10">
+            <div className="flex flex-col p-6 sm:p-8 lg:border-r lg:border-[rgba(212,208,201,0.12)] lg:p-10">
               <Eyebrow>Contact</Eyebrow>
               {/* Each phrase is an inline-block, so the line can only break
                   between them — never mid-phrase. That guarantees 4 words then
@@ -79,11 +79,11 @@ export function ContactSection() {
               <dl className="mt-10 flex flex-col">
                 {/* Email gets its own row with a copy affordance. */}
                 <div className="flex items-center gap-4 py-3.5 hairline-b">
-                  <dt className="eyebrow w-20 shrink-0">Email</dt>
+                  <dt className="eyebrow w-16 shrink-0 sm:w-20">Email</dt>
                   <dd className="flex min-w-0 flex-1 items-center justify-between gap-2">
                     <a
                       href={`mailto:${CONTACT_EMAIL}`}
-                      className="truncate text-[13px] text-bone transition-colors hover:text-chalk"
+                      className="inline-flex truncate py-1 text-[13px] text-bone transition-colors hover:text-chalk"
                     >
                       {CONTACT_EMAIL}
                     </a>
@@ -103,13 +103,13 @@ export function ContactSection() {
                     key={channel.label}
                     className="flex items-center gap-4 py-3.5 hairline-b"
                   >
-                    <dt className="eyebrow w-20 shrink-0">{channel.label}</dt>
+                    <dt className="eyebrow w-16 shrink-0 sm:w-20">{channel.label}</dt>
                     <dd className="min-w-0 flex-1">
                       <a
                         href={channel.href}
                         target="_blank"
                         rel="noreferrer"
-                        className="group inline-flex items-center gap-1 text-[13px] text-bone transition-colors hover:text-chalk"
+                        className="group inline-flex items-center gap-1 py-1 text-[13px] text-bone transition-colors hover:text-chalk"
                       >
                         {channel.value}
                         <ArrowUpRight
@@ -122,7 +122,7 @@ export function ContactSection() {
                 ))}
 
                 <div className="flex items-center gap-4 py-3.5">
-                  <dt className="eyebrow w-20 shrink-0">Based</dt>
+                  <dt className="eyebrow w-16 shrink-0 sm:w-20">Based</dt>
                   <dd className="text-[13px] text-ash">India — UTC+5:30</dd>
                 </div>
               </dl>
@@ -131,7 +131,7 @@ export function ContactSection() {
             {/* Right — the form */}
             <form
               onSubmit={onSubmit}
-              className="flex flex-col gap-6 border-t border-[rgba(212,208,201,0.12)] p-8 lg:border-t-0 lg:p-10"
+              className="flex flex-col gap-6 border-t border-[rgba(212,208,201,0.12)] p-6 sm:p-8 lg:border-t-0 lg:p-10"
             >
               <div className="grid gap-5 sm:grid-cols-2">
                 <div className="flex flex-col gap-2.5">
