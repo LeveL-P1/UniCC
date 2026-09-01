@@ -1,14 +1,62 @@
 import { Platform } from '@prisma/client'
-import { AdapterError, PlatformAdapter, withRetry } from '@/lib/integrations/base'
+import { AdapterError, fetchWithTimeout, PlatformAdapter, withRetry } from '@/lib/integrations/base'
 import { NormalizedPlatformStats } from '@/lib/sync/types'
 
-interface LeetCodeApiResponse {
-  status: string
-  totalSolved?: number
-  easySolved?: number
-  mediumSolved?: number
-  hardSolved?: number
-  ranking?: number
+/**
+ * LeetCode has no public REST API. The official GraphQL endpoint is the only
+ * durable source, so we call it directly.
+ *
+ * This adapter used to hit leetcode-stats-api.herokuapp.com first and fall
+ * back to GraphQL. That host has returned 503 since Heroku retired free dynos
+ * in 2022, and because withRetry wraps the whole attempt, every lookup burned
+ * three timeouts against a dead machine before doing the thing that worked.
+ *
+ * `submitStatsGlobal` (not `submitStats`) is the lifetime accepted count.
+ * `userContestRanking` is null for users who have never entered a rated
+ * contest, which is normal and must not be treated as an error.
+ */
+
+const ENDPOINT = 'https://leetcode.com/graphql'
+
+const QUERY = `
+  query unicc($username: String!) {
+    matchedUser(username: $username) {
+      username
+      profile {
+        ranking
+        realName
+      }
+      submitStatsGlobal {
+        acSubmissionNum {
+          difficulty
+          count
+        }
+      }
+    }
+    userContestRanking(username: $username) {
+      rating
+      attendedContestsCount
+      globalRanking
+    }
+  }
+`
+
+interface LeetCodeResponse {
+  data?: {
+    matchedUser?: {
+      username?: string
+      profile?: { ranking?: number; realName?: string }
+      submitStatsGlobal?: {
+        acSubmissionNum?: Array<{ difficulty: string; count: number }>
+      }
+    } | null
+    userContestRanking?: {
+      rating?: number
+      attendedContestsCount?: number
+      globalRanking?: number
+    } | null
+  }
+  errors?: Array<{ message: string }>
 }
 
 export class LeetCodeAdapter implements PlatformAdapter {
@@ -16,89 +64,54 @@ export class LeetCodeAdapter implements PlatformAdapter {
 
   async fetchStats(handle: string): Promise<NormalizedPlatformStats> {
     return withRetry(async () => {
-      const publicApi = await fetch(`https://leetcode-stats-api.herokuapp.com/${encodeURIComponent(handle)}`)
-      if (publicApi.ok) {
-        const data = (await publicApi.json()) as LeetCodeApiResponse
-        if (data.status === 'error') {
-          throw new AdapterError('NOT_FOUND', 'LeetCode user not found')
-        }
-        return {
-          platform: this.platform,
-          handle,
-          profileUrl: `https://leetcode.com/${handle}/`,
-          capturedAt: new Date(),
-          totalSolved: data.totalSolved ?? 0,
-          difficulty: {
-            easy: data.easySolved ?? 0,
-            medium: data.mediumSolved ?? 0,
-            hard: data.hardSolved ?? 0
-          },
-          rank: data.ranking ? String(data.ranking) : undefined,
-          ratings: [],
-          contests: [],
-          raw: data
-        }
-      }
-
-      const graphQlRes = await fetch('https://leetcode.com/graphql', {
+      const res = await fetchWithTimeout(ENDPOINT, {
         method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: `
-            query userPublicProfile($username: String!) {
-              matchedUser(username: $username) {
-                profile {
-                  ranking
-                }
-                submitStats {
-                  acSubmissionNum {
-                    difficulty
-                    count
-                  }
-                }
-              }
-            }
-          `,
-          variables: { username: handle }
-        })
+        headers: {
+          'Content-Type': 'application/json',
+          // LeetCode rejects requests without a plausible origin.
+          Referer: 'https://leetcode.com',
+        },
+        body: JSON.stringify({ query: QUERY, variables: { username: handle } }),
       })
 
-      if (!graphQlRes.ok) {
-        throw new AdapterError('TEMP_FAILURE', `LeetCode GraphQL failed (${graphQlRes.status})`)
+      if (res.status === 429) {
+        throw new AdapterError('RATE_LIMIT', 'Rate limited by LeetCode')
+      }
+      if (!res.ok) {
+        throw new AdapterError('TEMP_FAILURE', `LeetCode GraphQL failed (${res.status})`)
       }
 
-      const body = (await graphQlRes.json()) as {
-        data?: {
-          matchedUser?: {
-            profile?: { ranking?: number }
-            submitStats?: { acSubmissionNum?: Array<{ difficulty: string; count: number }> }
-          } | null
-        }
-      }
-
-      const matchedUser = body.data?.matchedUser
-      if (!matchedUser) {
+      const body = (await res.json()) as LeetCodeResponse
+      const user = body.data?.matchedUser
+      if (!user) {
         throw new AdapterError('NOT_FOUND', 'LeetCode user not found')
       }
 
-      const statMap = new Map(
-        (matchedUser.submitStats?.acSubmissionNum ?? []).map(item => [item.difficulty, item.count])
+      const counts = new Map(
+        (user.submitStatsGlobal?.acSubmissionNum ?? []).map((row) => [row.difficulty, row.count])
       )
-      const easy = statMap.get('Easy') ?? 0
-      const medium = statMap.get('Medium') ?? 0
-      const hard = statMap.get('Hard') ?? 0
+      const easy = counts.get('Easy') ?? 0
+      const medium = counts.get('Medium') ?? 0
+      const hard = counts.get('Hard') ?? 0
+      // "All" is authoritative when present; the parts can lag behind it.
+      const totalSolved = counts.get('All') ?? easy + medium + hard
+
+      const contest = body.data?.userContestRanking ?? null
 
       return {
         platform: this.platform,
-        handle,
-        profileUrl: `https://leetcode.com/${handle}/`,
+        handle: user.username ?? handle,
+        profileUrl: `https://leetcode.com/u/${handle}/`,
         capturedAt: new Date(),
-        totalSolved: easy + medium + hard,
+        totalSolved,
         difficulty: { easy, medium, hard },
-        rank: matchedUser.profile?.ranking ? String(matchedUser.profile.ranking) : undefined,
+        // Contest rating is a rating. Global problem ranking is NOT — putting
+        // ranking here is what made profiles show "5000001" as a headline stat.
+        rating: contest?.rating != null ? Math.round(contest.rating) : undefined,
+        rank: user.profile?.ranking != null ? `#${user.profile.ranking.toLocaleString('en-US')}` : undefined,
         ratings: [],
         contests: [],
-        raw: body
+        raw: body.data,
       }
     })
   }

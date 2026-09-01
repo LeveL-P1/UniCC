@@ -17,6 +17,33 @@ export interface PlatformAdapter {
 
 const sleep = (ms: number) => new Promise(resolve => setTimeout(resolve, ms))
 
+/** Default ceiling for a single upstream call. */
+export const DEFAULT_TIMEOUT_MS = 8000
+
+/**
+ * fetch with a hard deadline. Without this a single unresponsive platform
+ * holds the whole profile lookup open until the platform's own TCP timeout,
+ * and withRetry multiplies that wait by the retry count.
+ */
+export async function fetchWithTimeout(
+  url: string,
+  init: RequestInit = {},
+  timeoutMs = DEFAULT_TIMEOUT_MS
+): Promise<Response> {
+  const controller = new AbortController()
+  const timer = setTimeout(() => controller.abort(), timeoutMs)
+  try {
+    return await fetch(url, { ...init, signal: controller.signal })
+  } catch (error) {
+    if (error instanceof Error && error.name === 'AbortError') {
+      throw new AdapterError('TEMP_FAILURE', `Upstream timed out after ${timeoutMs}ms`)
+    }
+    throw error
+  } finally {
+    clearTimeout(timer)
+  }
+}
+
 export async function withRetry<T>(
   fn: () => Promise<T>,
   retries = 2,
